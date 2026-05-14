@@ -1,1 +1,48 @@
-{}
+{
+  "id": "did:web:www.dgajic.com",
+  "@context": [
+    "https://www.w3.org/ns/did/v1",
+    {
+      "@base": "did:web:www.dgajic.com"
+    }
+  ],
+  "service": [
+    {
+      "id": "#linkeddomains",
+      "type": "LinkedDomains",
+      "serviceEndpoint": {
+        "origins": [
+          "https://www.dgajic.com/"
+        ]
+      }
+    },
+    {
+      "id": "#hub",
+      "type": "IdentityHub",
+      "serviceEndpoint": {
+        "instances": [
+          "https://hub.did.msidentity.com/v1.0/ae9d2ba4-c305-4907-9fdb-17a023f7a5e8"
+        ]
+      }
+    }
+  ],
+  "verificationMethod": [
+    {
+      "id": "#c3c167bd794246dd92ad887397f3afc2vcSigningKey-4a500",
+      "controller": "did:web:www.dgajic.com",
+      "type": "JsonWebKey2020",
+      "publicKeyJwk": {
+        "crv": "P-256",
+        "kty": "EC",
+        "x": "cnT0NVBC3gl0eGccahzM8iuDm80BezgM2aobpUzepZo",
+        "y": "cVOrXLnEmRViXmvKk81hOtuzeFvO8toEmb-QrcfxfL4"
+      }
+    }
+  ],
+  "authentication": [
+    "#c3c167bd794246dd92ad887397f3afc2vcSigningKey-4a500"
+  ],
+  "assertionMethod": [
+    "#c3c167bd794246dd92ad887397f3afc2vcSigningKey-4a500"
+  ]
+}
