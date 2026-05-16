@@ -1,6 +1,89 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DG Labs – Credential Verification</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #0a1628; color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+  .card { background: #112240; border-radius: 12px; padding: 40px; max-width: 480px; width: 90%; text-align: center; box-shadow: 0 4px 24px rgba(0,0,0,0.4); }
+  img.logo { width: 80px; margin-bottom: 16px; }
+  h1 { font-size: 1.4rem; color: #4a9eff; margin-bottom: 8px; }
+  p { color: #8899aa; font-size: 0.9rem; margin-bottom: 24px; }
+  button { background: #4a9eff; color: white; border: none; padding: 14px 32px; border-radius: 8px; font-size: 1rem; cursor: pointer; }
+  button:hover { background: #3a8eef; }
+  #qr-container { margin-top: 24px; display: none; }
+  #qr-container img { width: 220px; border-radius: 8px; }
+  #status { margin-top: 20px; font-size: 0.95rem; color: #8899aa; }
+  #result { margin-top: 20px; background: #0d3b2e; border-radius: 8px; padding: 20px; display: none; }
+  #result h2 { color: #4eff9e; margin-bottom: 12px; }
+  #result p { color: #ffffff; margin: 4px 0; }
+</style>
+</head>
 <body>
-<h1>DG Labs</h1>
+<div class="card">
+  <img class="logo" src="logo.png" alt="DG Labs Logo">
+  <h1>DG Labs Credential Verification</h1>
+  <p>Verify your AI Governance & Cybersecurity Specialist credential issued by DG Labs Geneva.</p>
+  <button onclick="startVerification()">Verify Credential</button>
+  <div id="qr-container">
+    <p>Scan with Microsoft Authenticator</p>
+    <img id="qr-image" src="" alt="QR Code">
+  </div>
+  <div id="status"></div>
+  <div id="result">
+    <h2>✓ Credential Verified</h2>
+    <p id="result-name"></p>
+    <p id="result-email"></p>
+    <p style="color:#8899aa;font-size:0.8rem;margin-top:12px">Issued by DG Labs · did:web:www.dgajic.com</p>
+  </div>
+</div>
+
+<script>
+const VC_PRESENT_URL = "REPLACE_WITH_VC_PRESENT_URL";
+const VC_STATUS_URL = "REPLACE_WITH_VC_CALLBACK_URL";
+
+let pollInterval;
+
+async function startVerification() {
+  document.getElementById("status").innerText = "Generating QR code...";
+  document.getElementById("qr-container").style.display = "none";
+  document.getElementById("result").style.display = "none";
+
+  try {
+    const response = await fetch(VC_PRESENT_URL, { method: "POST" });
+    const data = await response.json();
+
+    if (data.qrCode) {
+      document.getElementById("qr-image").src = data.qrCode;
+      document.getElementById("qr-container").style.display = "block";
+      document.getElementById("status").innerText = "Waiting for verification...";
+      pollInterval = setInterval(() => checkStatus(data.requestId), 2000);
+    } else {
+      document.getElementById("status").innerText = "Error generating QR code.";
+    }
+  } catch (e) {
+    document.getElementById("status").innerText = "Error: " + e.message;
+  }
+}
+
+async function checkStatus(requestId) {
+  try {
+    const response = await fetch(VC_STATUS_URL + "&requestId=" + requestId);
+    const data = await response.json();
+
+    if (data.status === "verified") {
+      clearInterval(pollInterval);
+      document.getElementById("qr-container").style.display = "none";
+      document.getElementById("status").innerText = "";
+      document.getElementById("result-name").innerText = "Name: " + data.firstName + " " + data.lastName;
+      document.getElementById("result-email").innerText = "Email: " + data.email;
+      document.getElementById("result").style.display = "block";
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+</script>
 </body>
 </html>
