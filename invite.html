@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DG Labs – Issue Credential</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #0a1628; color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+  .card { background: #112240; border-radius: 12px; padding: 40px; max-width: 480px; width: 90%; text-align: center; box-shadow: 0 4px 24px rgba(0,0,0,0.4); }
+  img.logo { width: 80px; margin-bottom: 16px; }
+  h1 { font-size: 1.4rem; color: #4a9eff; margin-bottom: 8px; }
+  p { color: #8899aa; font-size: 0.9rem; margin-bottom: 24px; }
+  input { width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #2a4a6a; background: #0a1628; color: #ffffff; font-size: 0.95rem; box-sizing: border-box; }
+  input::placeholder { color: #4a6a8a; }
+  button { background: #4a9eff; color: white; border: none; padding: 14px 32px; border-radius: 8px; font-size: 1rem; cursor: pointer; width: 100%; margin-top: 8px; }
+  button:hover { background: #3a8eef; }
+  #result { margin-top: 24px; display: none; }
+  #deep-link { word-break: break-all; background: #0a1628; padding: 12px; border-radius: 8px; font-size: 0.8rem; color: #4a9eff; margin: 12px 0; }
+  #qr-image { width: 220px; border-radius: 8px; margin-top: 12px; }
+  .copy-btn { background: #1a3a5a; font-size: 0.85rem; padding: 8px 16px; margin-top: 8px; }
+  #status { margin-top: 12px; color: #8899aa; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<div class="card">
+  <img class="logo" src="logo.png" alt="DG Labs Logo">
+  <h1>Issue DG Labs Credential</h1>
+  <p>Enter the recipient's details to generate an invitation.</p>
+  <input id="firstName" type="text" placeholder="First Name">
+  <input id="lastName" type="text" placeholder="Last Name">
+  <input id="email" type="email" placeholder="Email Address">
+  <button onclick="generateInvite()">Generate Invitation</button>
+  <div id="status"></div>
+  <div id="result">
+    <p style="color:#4eff9e;font-weight:bold;">✓ Invitation Ready</p>
+    <p style="color:#8899aa;font-size:0.85rem;">Send this link to the recipient (mobile):</p>
+    <div id="deep-link"></div>
+    <button class="copy-btn" onclick="copyLink()">Copy Link</button>
+    <p style="color:#8899aa;font-size:0.85rem;margin-top:16px;">Or scan this QR code (desktop):</p>
+    <img id="qr-image" src="" alt="QR Code">
+  </div>
+</div>
+
+<script>
+const VC_ISSUE_URL = "https://dg-labs-vc-callback-fzdwg5fjb4cncgca.westeurope-01.azurewebsites.net/api/vc-issue";
+
+async function generateInvite() {
+  const firstName = document.getElementById("firstName").value.trim();
+  const lastName = document.getElementById("lastName").value.trim();
+  const email = document.getElementById("email").value.trim();
+
+  if (!firstName || !lastName || !email) {
+    document.getElementById("status").innerText = "Please fill in all fields.";
+    return;
+  }
+
+  document.getElementById("status").innerText = "Generating invitation...";
+  document.getElementById("result").style.display = "none";
+
+  try {
+    const response = await fetch(VC_ISSUE_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ firstName, lastName, email })
+    });
+    const data = await response.json();
+
+    if (data.url && data.qrCode) {
+      document.getElementById("deep-link").innerText = data.url;
+      document.getElementById("qr-image").src = data.qrCode;
+      document.getElementById("result").style.display = "block";
+      document.getElementById("status").innerText = "";
+    } else {
+      document.getElementById("status").innerText = "Error generating invitation.";
+    }
+  } catch (e) {
+    document.getElementById("status").innerText = "Error: " + e.message;
+  }
+}
+
+function copyLink() {
+  const link = document.getElementById("deep-link").innerText;
+  navigator.clipboard.writeText(link);
+  document.getElementById("status").innerText = "Link copied to clipboard.";
+}
+</script>
+</body>
+</html>
