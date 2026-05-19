@@ -53,20 +53,19 @@
 <script>
 const VC_ISSUE_URL = "https://dg-labs-vc-callback-fzdwg5fjb4cncgca.westeurope-01.azurewebsites.net/api/vc-issue";
 
-aasync function loadUserInfo() {
+window.onload = async function() {
   try {
     const response = await fetch("/.auth/me");
     const data = await response.json();
     const principal = data.clientPrincipal;
-
-    if (principal) {
-      document.getElementById("email").value = principal.userDetails || "";
+    if (principal && principal.userDetails) {
+      document.getElementById("email").value = principal.userDetails;
       document.getElementById("email").readOnly = true;
     }
   } catch (e) {
     console.error("Could not load user info", e);
   }
-}
+};
 
 async function generateInvite() {
   const firstName = document.getElementById("firstName").value.trim();
@@ -74,7 +73,7 @@ async function generateInvite() {
   const email = document.getElementById("email").value.trim();
 
   if (!firstName || !lastName || !email) {
-    document.getElementById("status").innerText = "User information not loaded. Please refresh.";
+    document.getElementById("status").innerText = "Please fill in all fields.";
     return;
   }
 
@@ -108,8 +107,6 @@ function copyLink() {
   navigator.clipboard.writeText(link);
   document.getElementById("status").innerText = "Link copied to clipboard.";
 }
-
-window.onload = loadUserInfo;
 </script>
 </body>
 </html>
