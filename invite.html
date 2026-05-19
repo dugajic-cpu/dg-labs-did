@@ -53,28 +53,16 @@
 <script>
 const VC_ISSUE_URL = "https://dg-labs-vc-callback-fzdwg5fjb4cncgca.westeurope-01.azurewebsites.net/api/vc-issue";
 
-async function loadUserInfo() {
+aasync function loadUserInfo() {
   try {
     const response = await fetch("/.auth/me");
     const data = await response.json();
-    const claims = data.clientPrincipal?.claims || [];
+    const principal = data.clientPrincipal;
 
-    const name = claims.find(c => c.typ === "name")?.val || "";
-    const email = claims.find(c => c.typ === "preferred_username")?.val 
-               || claims.find(c => c.typ === "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")?.val 
-               || "";
-
-    const parts = name.trim().split(" ");
-    const firstName = parts[0] || "";
-    const lastName = parts.slice(1).join(" ") || "";
-
-    document.getElementById("firstName").value = firstName;
-    document.getElementById("lastName").value = lastName;
-    document.getElementById("email").value = email;
-
-    document.getElementById("firstName").readOnly = true;
-    document.getElementById("lastName").readOnly = true;
-    document.getElementById("email").readOnly = true;
+    if (principal) {
+      document.getElementById("email").value = principal.userDetails || "";
+      document.getElementById("email").readOnly = true;
+    }
   } catch (e) {
     console.error("Could not load user info", e);
   }
