@@ -39,7 +39,7 @@
   <input id="firstName" type="text" placeholder="First Name">
   <input id="lastName" type="text" placeholder="Last Name">
   <input id="email" type="email" placeholder="Email Address">
-  <button onclick="generateInvite()">Generate Invitation</button>
+  <button onclick="generateInvite()">Get My Credential</button>
   <div id="status"></div>
   <div id="result">
     <p style="color:#4eff9e;font-weight:bold;">✓ Invitation Ready</p>
@@ -50,9 +50,35 @@
     <img id="qr-image" src="" alt="QR Code">
   </div>
 </div>
-
 <script>
 const VC_ISSUE_URL = "https://dg-labs-vc-callback-fzdwg5fjb4cncgca.westeurope-01.azurewebsites.net/api/vc-issue";
+
+async function loadUserInfo() {
+  try {
+    const response = await fetch("/.auth/me");
+    const data = await response.json();
+    const claims = data.clientPrincipal?.claims || [];
+
+    const name = claims.find(c => c.typ === "name")?.val || "";
+    const email = claims.find(c => c.typ === "preferred_username")?.val 
+               || claims.find(c => c.typ === "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")?.val 
+               || "";
+
+    const parts = name.trim().split(" ");
+    const firstName = parts[0] || "";
+    const lastName = parts.slice(1).join(" ") || "";
+
+    document.getElementById("firstName").value = firstName;
+    document.getElementById("lastName").value = lastName;
+    document.getElementById("email").value = email;
+
+    document.getElementById("firstName").readOnly = true;
+    document.getElementById("lastName").readOnly = true;
+    document.getElementById("email").readOnly = true;
+  } catch (e) {
+    console.error("Could not load user info", e);
+  }
+}
 
 async function generateInvite() {
   const firstName = document.getElementById("firstName").value.trim();
@@ -60,11 +86,11 @@ async function generateInvite() {
   const email = document.getElementById("email").value.trim();
 
   if (!firstName || !lastName || !email) {
-    document.getElementById("status").innerText = "Please fill in all fields.";
+    document.getElementById("status").innerText = "User information not loaded. Please refresh.";
     return;
   }
 
-  document.getElementById("status").innerText = "Generating invitation...";
+  document.getElementById("status").innerText = "Generating your credential...";
   document.getElementById("result").style.display = "none";
 
   try {
@@ -82,7 +108,7 @@ async function generateInvite() {
       document.getElementById("result").style.display = "block";
       document.getElementById("status").innerText = "";
     } else {
-      document.getElementById("status").innerText = "Error generating invitation.";
+      document.getElementById("status").innerText = "Error generating credential.";
     }
   } catch (e) {
     document.getElementById("status").innerText = "Error: " + e.message;
@@ -94,6 +120,8 @@ function copyLink() {
   navigator.clipboard.writeText(link);
   document.getElementById("status").innerText = "Link copied to clipboard.";
 }
+
+window.onload = loadUserInfo;
 </script>
 </body>
 </html>
