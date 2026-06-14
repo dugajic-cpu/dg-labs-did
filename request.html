@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DG Labs — Verification Request</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%237c6af7'/><text y='72' x='50' text-anchor='middle' font-size='55' font-family='Arial' font-weight='bold' fill='white'>DG</text></svg>">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0d14;
+    --surface: #13172a;
+    --border: #1e2340;
+    --accent: #7c6af7;
+    --accent-hover: #6a59e0;
+    --text: #e8e9f0;
+    --text-dim: #8b8fa8;
+    --green: #4eca8b;
+    --red: #f07070;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    width: 100%;
+    max-width: 440px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 2rem;
+  }
+
+  .logo-mark {
+    width: 42px;
+    height: 42px;
+    background: var(--accent);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-text { line-height: 1.2; }
+  .logo-name { font-size: 15px; font-weight: 600; }
+  .logo-sub { font-size: 11px; color: var(--text-dim); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  h1 { font-size: 22px; font-weight: 600; margin-bottom: 8px; line-height: 1.3; }
+  p.subtitle { font-size: 14px; color: var(--text-dim); line-height: 1.7; margin-bottom: 2rem; }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
+
+  input, select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.15s;
+    margin-bottom: 16px;
+    appearance: none;
+  }
+
+  input:focus, select:focus { border-color: var(--accent); }
+  input::placeholder { color: var(--text-dim); }
+  input:read-only { opacity: 0.6; cursor: not-allowed; }
+
+  .email-verified {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(78,202,139,0.08);
+    border: 1px solid rgba(78,202,139,0.3);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: var(--green);
+  }
+
+  .btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-top: 8px;
+  }
+
+  .btn:hover { background: var(--accent-hover); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .message {
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-top: 12px;
+    display: none;
+  }
+
+  .message.error { background: rgba(240,112,112,0.1); border: 1px solid var(--red); color: var(--red); display: block; }
+  .message.success { background: rgba(78,202,139,0.1); border: 1px solid var(--green); color: var(--green); display: block; }
+
+  .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .step { display: none; }
+  .step.active { display: block; }
+
+  .success-icon {
+    font-size: 48px;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  footer {
+    margin-top: 2rem;
+    font-size: 12px;
+    color: var(--text-dim);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">
+    <div class="logo-mark">DG</div>
+    <div class="logo-text">
+      <div class="logo-name">DG Labs</div>
+      <div class="logo-sub">Geneva · AI · Identity · Security</div>
+    </div>
+  </div>
+
+  <!-- Step 1: Request form -->
+  <div class="step active" id="step-form">
+    <h1>Your details</h1>
+    <p class="subtitle">Please provide your information as it appears on your passport. This will be used for identity verification.</p>
+
+    <label>Email address</label>
+    <div class="email-verified">
+      <span>✓</span>
+      <span id="email-display">—</span>
+    </div>
+
+    <label for="firstName">First name</label>
+    <input type="text" id="firstName" placeholder="As on your passport">
+
+    <label for="lastName">Last name</label>
+    <input type="text" id="lastName" placeholder="As on your passport">
+
+    <label for="country">Passport country</label>
+    <select id="country">
+      <option value="">Select country...</option>
+      <option value="CH">Switzerland</option>
+      <option value="DE">Germany</option>
+      <option value="FR">France</option>
+      <option value="IT">Italy</option>
+      <option value="AT">Austria</option>
+      <option value="GB">United Kingdom</option>
+      <option value="US">United States</option>
+      <option value="RS">Serbia</option>
+      <option value="HR">Croatia</option>
+      <option value="BA">Bosnia and Herzegovina</option>
+      <option value="NL">Netherlands</option>
+      <option value="BE">Belgium</option>
+      <option value="ES">Spain</option>
+      <option value="PT">Portugal</option>
+      <option value="SE">Sweden</option>
+      <option value="NO">Norway</option>
+      <option value="DK">Denmark</option>
+      <option value="FI">Finland</option>
+      <option value="PL">Poland</option>
+      <option value="CZ">Czech Republic</option>
+      <option value="SK">Slovakia</option>
+      <option value="HU">Hungary</option>
+      <option value="RO">Romania</option>
+      <option value="BG">Bulgaria</option>
+      <option value="GR">Greece</option>
+      <option value="TR">Turkey</option>
+      <option value="UA">Ukraine</option>
+      <option value="CA">Canada</option>
+      <option value="AU">Australia</option>
+      <option value="JP">Japan</option>
+      <option value="CN">China</option>
+      <option value="IN">India</option>
+      <option value="BR">Brazil</option>
+      <option value="OTHER">Other</option>
+    </select>
+
+    <button class="btn" onclick="submitRequest()">Submit verification request</button>
+    <div class="message" id="form-msg"></div>
+  </div>
+
+  <!-- Step 2: Success -->
+  <div class="step" id="step-success">
+    <div class="success-icon">📬</div>
+    <h1 style="text-align:center;margin-bottom:12px;">Request submitted</h1>
+    <p class="subtitle" style="text-align:center;">
+      Your verification request has been received. You will be notified by email once it has been reviewed — typically within one business day.
+    </p>
+    <p style="text-align:center;font-size:13px;color:var(--text-dim);margin-top:1rem;">
+      Please check your inbox at<br>
+      <strong style="color:var(--text)" id="confirm-email"></strong>
+    </p>
+  </div>
+
+</div>
+
+<footer>DG Labs — Geneva &nbsp;·&nbsp; AI Governance &amp; Identity Security</footer>
+
+<script>
+  const SUBMIT_URL = 'https://dg-labs-vc-callback-fzdwg5fjb4cncgca.westeurope-01.azurewebsites.net/api/submit-request';
+
+  // Read email from URL parameter
+  const params = new URLSearchParams(window.location.search);
+  const email = params.get('email') || '';
+
+  document.getElementById('email-display').textContent = email || 'Not provided';
+  document.getElementById('confirm-email').textContent = email;
+
+  function showStep(id) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function showMsg(id, text, type) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.className = 'message ' + type;
+  }
+
+  async function submitRequest() {
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName = document.getElementById('lastName').value.trim();
+    const country = document.getElementById('country').value;
+
+    if (!firstName) { showMsg('form-msg', 'Please enter your first name.', 'error'); return; }
+    if (!lastName) { showMsg('form-msg', 'Please enter your last name.', 'error'); return; }
+    if (!country) { showMsg('form-msg', 'Please select your passport country.', 'error'); return; }
+    if (!email) { showMsg('form-msg', 'Email not found. Please go back and verify your email.', 'error'); return; }
+
+    const btn = event.target;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Submitting...';
+
+    try {
+      const res = await fetch(SUBMIT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, firstName, lastName, country })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        showStep('step-success');
+      } else {
+        showMsg('form-msg', data.message || 'Something went wrong. Please try again.', 'error');
+      }
+    } catch (e) {
+      showMsg('form-msg', 'Network error. Please check your connection.', 'error');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = 'Submit verification request';
+  }
+</script>
+</body>
+</html>
