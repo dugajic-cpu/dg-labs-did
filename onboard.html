@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DG Labs — Identity Verification</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0d14;
+    --surface: #13172a;
+    --border: #1e2340;
+    --accent: #7c6af7;
+    --accent-hover: #6a59e0;
+    --text: #e8e9f0;
+    --text-dim: #8b8fa8;
+    --green: #4eca8b;
+    --red: #f07070;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    width: 100%;
+    max-width: 440px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 2rem;
+  }
+
+  .logo-mark {
+    width: 42px;
+    height: 42px;
+    background: var(--accent);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-text { line-height: 1.2; }
+  .logo-name { font-size: 15px; font-weight: 600; }
+  .logo-sub { font-size: 11px; color: var(--text-dim); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  h1 { font-size: 22px; font-weight: 600; margin-bottom: 8px; line-height: 1.3; }
+  p.subtitle { font-size: 14px; color: var(--text-dim); line-height: 1.7; margin-bottom: 2rem; }
+
+  .step { display: none; }
+  .step.active { display: block; }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
+
+  input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.15s;
+    margin-bottom: 16px;
+  }
+
+  input:focus { border-color: var(--accent); }
+  input::placeholder { color: var(--text-dim); }
+
+  .btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn:hover { background: var(--accent-hover); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    margin-top: 10px;
+  }
+
+  .btn-secondary:hover { border-color: var(--accent); color: var(--text); background: transparent; }
+
+  .message {
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-top: 12px;
+    display: none;
+  }
+
+  .message.error { background: rgba(240,112,112,0.1); border: 1px solid var(--red); color: var(--red); display: block; }
+  .message.success { background: rgba(78,202,139,0.1); border: 1px solid var(--green); color: var(--green); display: block; }
+
+  .otp-hint {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+
+  .otp-input {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: 12px;
+    text-align: center;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 1.5rem 0;
+  }
+
+  .features {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 2rem;
+  }
+
+  .feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  .feature-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(124,106,247,0.15);
+    border: 1px solid rgba(124,106,247,0.3);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  footer {
+    margin-top: 2rem;
+    font-size: 12px;
+    color: var(--text-dim);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">
+    <div class="logo-mark">DG</div>
+    <div class="logo-text">
+      <div class="logo-name">DG Labs</div>
+      <div class="logo-sub">Geneva · AI · Identity · Security</div>
+    </div>
+  </div>
+
+  <!-- Step 1: Email entry -->
+  <div class="step active" id="step-email">
+    <h1>Identity Verification Portal</h1>
+    <p class="subtitle">Request your DG Labs Verified ID credential — a cryptographically signed proof of your verified identity.</p>
+
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">✓</div>
+        <div>Biometric passport verification via Veriff</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">✓</div>
+        <div>Credential issued to Microsoft Authenticator</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">✓</div>
+        <div>FINMA-aligned identity assurance process</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <label for="email">Your email address</label>
+    <input type="email" id="email" placeholder="name@company.com" autocomplete="email">
+
+    <button class="btn" onclick="sendOtp()">Send verification code</button>
+    <div class="message" id="email-msg"></div>
+  </div>
+
+  <!-- Step 2: OTP verification -->
+  <div class="step" id="step-otp">
+    <h1>Check your inbox</h1>
+    <p class="otp-hint">We sent a 6-digit code to <strong id="email-display"></strong>. Enter it below to continue.</p>
+
+    <label for="otp">Verification code</label>
+    <input type="text" id="otp" class="otp-input" placeholder="000000" maxlength="6" autocomplete="one-time-code">
+
+    <button class="btn" onclick="verifyOtp()">Continue</button>
+    <button class="btn btn-secondary" onclick="goBack()">Use a different email</button>
+    <div class="message" id="otp-msg"></div>
+  </div>
+
+  <!-- Step 3: Success -->
+  <div class="step" id="step-success">
+    <div style="text-align:center;padding:1rem 0;">
+      <div style="font-size:48px;margin-bottom:1rem;">✓</div>
+      <h1 style="margin-bottom:8px;">Email verified</h1>
+      <p class="subtitle">Your email has been confirmed. Please complete your details to submit a verification request.</p>
+      <button class="btn" onclick="goToRequest()" style="margin-top:1rem;">Continue to request form →</button>
+    </div>
+  </div>
+
+</div>
+
+<footer>DG Labs — Geneva &nbsp;·&nbsp; AI Governance &amp; Identity Security</footer>
+
+<script>
+  const SEND_OTP_URL = 'https://dg-labs-vc-callback-fzdwg5fjb4cncgca.westeurope-01.azurewebsites.net/api/send-otp';
+  const VERIFY_OTP_URL = 'https://dg-labs-vc-callback-fzdwg5fjb4cncgca.westeurope-01.azurewebsites.net/api/verify-otp';
+
+  let verifiedEmail = '';
+
+  function showStep(id) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function showMsg(id, text, type) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.className = 'message ' + type;
+  }
+
+  async function sendOtp() {
+    const email = document.getElementById('email').value.trim();
+    if (!email) { showMsg('email-msg', 'Please enter your email address.', 'error'); return; }
+
+    const btn = event.target;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Sending...';
+
+    try {
+      const res = await fetch(SEND_OTP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      if (res.ok) {
+        verifiedEmail = email;
+        document.getElementById('email-display').textContent = email;
+        showStep('step-otp');
+      } else {
+        showMsg('email-msg', 'Failed to send code. Please try again.', 'error');
+      }
+    } catch (e) {
+      showMsg('email-msg', 'Network error. Please check your connection.', 'error');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = 'Send verification code';
+  }
+
+  async function verifyOtp() {
+    const code = document.getElementById('otp').value.trim();
+    if (code.length !== 6) { showMsg('otp-msg', 'Please enter the 6-digit code.', 'error'); return; }
+
+    const btn = event.target;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Verifying...';
+
+    try {
+      const res = await fetch(VERIFY_OTP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: verifiedEmail, code })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        showStep('step-success');
+      } else {
+        showMsg('otp-msg', data.message || 'Incorrect code. Please try again.', 'error');
+      }
+    } catch (e) {
+      showMsg('otp-msg', 'Network error. Please check your connection.', 'error');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = 'Continue';
+  }
+
+  function goBack() {
+    document.getElementById('otp').value = '';
+    document.getElementById('otp-msg').className = 'message';
+    showStep('step-email');
+  }
+
+  function goToRequest() {
+    window.location.href = 'request.html?email=' + encodeURIComponent(verifiedEmail);
+  }
+
+  // Auto-submit OTP when 6 digits entered
+  document.getElementById('otp').addEventListener('input', function() {
+    if (this.value.length === 6) verifyOtp();
+  });
+</script>
+</body>
+</html>
