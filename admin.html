@@ -281,6 +281,18 @@
 </head>
 <body>
 
+<!-- Password gate -->
+<div id="gate" style="position:fixed;inset:0;background:#0a0d14;display:flex;align-items:center;justify-content:center;z-index:999;">
+  <div style="background:#13172a;border:1px solid #1e2340;border-radius:16px;padding:2.5rem 2rem;width:100%;max-width:360px;text-align:center;">
+    <div style="width:42px;height:42px;background:#7c6af7;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:white;margin:0 auto 1.5rem;">DG</div>
+    <div style="font-size:18px;font-weight:600;margin-bottom:8px;">Admin Panel</div>
+    <div style="font-size:13px;color:#8b8fa8;margin-bottom:1.5rem;">Enter your admin password to continue</div>
+    <input type="password" id="gate-password" placeholder="Password" onkeydown="if(event.key==='Enter')checkPassword()" style="width:100%;background:#0a0d14;border:1px solid #1e2340;border-radius:8px;padding:12px 14px;color:#e8e9f0;font-family:inherit;font-size:15px;outline:none;margin-bottom:12px;">
+    <button onclick="checkPassword()" style="width:100%;padding:12px;background:#7c6af7;border:none;border-radius:8px;color:white;font-family:inherit;font-size:15px;font-weight:500;cursor:pointer;">Enter</button>
+    <div id="gate-error" style="color:#f07070;font-size:13px;margin-top:10px;display:none;">Incorrect password. Please try again.</div>
+  </div>
+</div> 
+  
 <div class="header">
   <div class="logo">
     <div class="logo-mark">DG</div>
@@ -323,8 +335,24 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  const APPROVE_URL = 'https://dg-labs-vc-callback-fzdwg5fjb4cncgca.westeurope-01.azurewebsites.net/api/approve-request?code=REPLACE_WITH_YOUR_FUNCTION_KEY';
-  const LIST_URL = 'https://dg-labs-vc-callback-fzdwg5fjb4cncgca.westeurope-01.azurewebsites.net/api/list-requests?code=REPLACE_WITH_YOUR_FUNCTION_KEY';
+  const ADMIN_PASSWORD = 'DGLabs2026!+';
+
+  function checkPassword() {
+    const pwd = document.getElementById('gate-password').value;
+    if (pwd === ADMIN_PASSWORD) {
+        document.getElementById('gate').style.display = 'none';
+        loadRequests();
+    } else {
+        document.getElementById('gate-error').style.display = 'block';
+        document.getElementById('gate-password').value = '';
+    }
+  }
+
+  // Don't load requests until password is entered
+  // Remove the loadRequests() call at the bottom
+  
+  const APPROVE_URL = 'https://dg-labs-vc-callback-fzdwg5fjb4cncgca.westeurope-01.azurewebsites.net/api/approve-request?code=agj3pRHZbcylYStdT-OmcON7I6QFQZuFzG1c9wxmIjtvAzFu5BH4DA==';
+  const LIST_URL = 'https://dg-labs-vc-callback-fzdwg5fjb4cncgca.westeurope-01.azurewebsites.net/api/list-requests?code=H_KnolL-TwAE_ITNqgGKyze0P_xeb2qIrZYhqYeJ6hKzAzFum6dFmA==';
 
   let allRequests = [];
   let currentFilter = 'all';
@@ -435,7 +463,6 @@
     setTimeout(() => t.className = 'toast', 3000);
   }
 
-  loadRequests();
 </script>
 </body>
 </html>
