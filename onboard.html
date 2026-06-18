@@ -393,6 +393,8 @@
   document.getElementById('otp').addEventListener('input', function() {
     if (this.value.length === 6) verifyOtp();
   });
+  // Clear OTP field on page load
+  document.getElementById('otp').value = '';
 </script>
 </body>
 </html>
