@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DG Labs — Verification Complete</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%237c6af7'/><text y='72' x='50' text-anchor='middle' font-size='55' font-family='Arial' font-weight='bold' fill='white'>DG</text></svg>">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0d14;
+    --surface: #13172a;
+    --border: #1e2340;
+    --accent: #7c6af7;
+    --text: #e8e9f0;
+    --text-dim: #8b8fa8;
+    --green: #4eca8b;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    width: 100%;
+    max-width: 440px;
+    text-align: center;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 2rem;
+  }
+
+  .logo-mark {
+    width: 42px;
+    height: 42px;
+    background: var(--accent);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+  }
+
+  .logo-text { line-height: 1.2; text-align: left; }
+  .logo-name { font-size: 15px; font-weight: 600; }
+  .logo-sub { font-size: 11px; color: var(--text-dim); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  .check-circle {
+    width: 72px;
+    height: 72px;
+    background: rgba(78,202,139,0.15);
+    border: 2px solid var(--green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 32px;
+  }
+
+  h1 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+
+  p {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--text-dim);
+    margin-bottom: 1rem;
+  }
+
+  .email-note {
+    background: rgba(124,106,247,0.08);
+    border: 1px solid rgba(124,106,247,0.25);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin: 1.5rem 0;
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  .email-note strong { color: var(--text); }
+
+  .steps {
+    text-align: left;
+    margin: 1.5rem 0;
+  }
+
+  .step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  .step-item:last-child { border-bottom: none; }
+
+  .step-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  footer {
+    margin-top: 2rem;
+    font-size: 12px;
+    color: var(--text-dim);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">
+    <div class="logo-mark">DG</div>
+    <div class="logo-text">
+      <div class="logo-name">DG Labs</div>
+      <div class="logo-sub">Geneva · AI · Identity · Security</div>
+    </div>
+  </div>
+
+  <div class="check-circle">✓</div>
+
+  <h1>Verification submitted</h1>
+  <p>Thank you — your identity data has been successfully submitted to Veriff for verification.</p>
+
+  <div class="email-note">
+    <strong>Next step: check your email.</strong><br>
+    Once your identity is verified, you will receive an email with a QR code to add your DG Labs Verified ID credential to Microsoft Authenticator.
+  </div>
+
+  <div class="steps">
+    <div class="step-item">
+      <div class="step-num">1</div>
+      <div>Open the email from <strong>DG Labs</strong> with subject <em>"Your DG Labs Verified ID credential is ready"</em></div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">2</div>
+      <div>Open <strong>Microsoft Authenticator</strong> on your phone</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">3</div>
+      <div>Tap <strong>+</strong> → scan the QR code in the email — act quickly, it expires in 5 minutes</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">4</div>
+      <div>Your <strong>DG Labs Verified ID</strong> credential will appear in your wallet</div>
+    </div>
+  </div>
+
+  <p style="font-size:13px;color:var(--text-dim);">Questions? Contact us at <a href="mailto:dusan@dgajic.com" style="color:var(--accent);">dusan@dgajic.com</a></p>
+</div>
+
+<footer>DG Labs — Geneva &nbsp;·&nbsp; AI Governance &amp; Identity Security</footer>
+
+</body>
+</html>
