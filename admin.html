@@ -62,6 +62,19 @@
     letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 12px; border-radius: 20px;
   }
 
+  .user-info {
+    font-size: 13px; color: var(--text-dim);
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .user-info a {
+    color: var(--text-dim); font-size: 12px;
+    text-decoration: none; border: 1px solid var(--border);
+    padding: 4px 10px; border-radius: 6px; transition: all 0.15s;
+  }
+
+  .user-info a:hover { border-color: var(--red); color: var(--red); }
+
   .container { max-width: 900px; margin: 0 auto; }
 
   .stats {
@@ -171,28 +184,13 @@
   .filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(124,106,247,0.1); }
   .filter-btn:hover { border-color: var(--accent); color: var(--text); }
 
-  .gate-input {
-    width: 100%; background: #0a0d14; border: 1px solid #1e2340;
-    border-radius: 8px; padding: 12px 14px; color: #e8e9f0;
-    font-family: inherit; font-size: 15px; outline: none; margin-bottom: 12px;
+  .error-state {
+    text-align: center; padding: 3rem; color: var(--red);
+    background: var(--surface); border: 1px solid var(--red); border-radius: 12px;
   }
-  .gate-input:focus { border-color: #7c6af7; }
 </style>
 </head>
 <body>
-
-<!-- Password gate -->
-<div id="gate" style="position:fixed;inset:0;background:#0a0d14;display:flex;align-items:center;justify-content:center;z-index:999;">
-  <div style="background:#13172a;border:1px solid #1e2340;border-radius:16px;padding:2.5rem 2rem;width:100%;max-width:380px;text-align:center;">
-    <div style="width:42px;height:42px;background:#7c6af7;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:white;margin:0 auto 1.5rem;">DG</div>
-    <div style="font-size:18px;font-weight:600;margin-bottom:8px;">Admin Panel</div>
-    <div style="font-size:13px;color:#8b8fa8;margin-bottom:1.5rem;">Enter your password and function key to continue</div>
-    <input class="gate-input" type="password" id="gate-password" placeholder="Admin password" onkeydown="if(event.key==='Enter')checkPassword()">
-    <input class="gate-input" type="password" id="gate-key" placeholder="approve-request function key" onkeydown="if(event.key==='Enter')checkPassword()">
-    <button onclick="checkPassword()" style="width:100%;padding:12px;background:#7c6af7;border:none;border-radius:8px;color:white;font-family:inherit;font-size:15px;font-weight:500;cursor:pointer;">Enter</button>
-    <div id="gate-error" style="color:#f07070;font-size:13px;margin-top:10px;display:none;">Please enter both password and function key.</div>
-  </div>
-</div>
 
 <div class="header">
   <div class="logo">
@@ -204,6 +202,10 @@
   </div>
   <div style="display:flex;align-items:center;gap:12px;">
     <span class="admin-badge">Admin Panel</span>
+    <div class="user-info">
+      <span id="user-email"></span>
+      <a href="/.auth/logout">Sign out</a>
+    </div>
     <button class="refresh-btn" onclick="loadRequests()">↻ Refresh</button>
   </div>
 </div>
@@ -234,20 +236,43 @@
 <script>
   const BASE_URL = 'https://dg-labs-vc-callback-fzdwg5fjb4cncgca.westeurope-01.azurewebsites.net/api';
   const LIST_URL = BASE_URL + '/list-requests';
+  const GET_KEY_URL = BASE_URL + '/get-admin-key';
   let APPROVE_KEY = '';
   let allRequests = [];
   let currentFilter = 'all';
 
-  function checkPassword() {
-    const pwd = document.getElementById('gate-password').value.trim();
-    const key = document.getElementById('gate-key').value.trim();
-    if (pwd && key) {
-      APPROVE_KEY = key;
-      document.getElementById('gate').style.display = 'none';
-      loadRequests();
-    } else {
-      document.getElementById('gate-error').style.display = 'block';
+  // On page load — get user info and fetch the key
+  async function init() {
+    // Get authenticated user info from Static Web Apps
+    try {
+      const authRes = await fetch('/.auth/me');
+      const authData = await authRes.json();
+      const user = authData?.clientPrincipal;
+      if (user?.userDetails) {
+        document.getElementById('user-email').textContent = user.userDetails;
+      }
+    } catch (e) {
+      // Non-critical — just won't show email in header
     }
+
+    // Fetch the approve-request key from get-admin-key function
+    try {
+      const keyRes = await fetch(GET_KEY_URL);
+      if (!keyRes.ok) {
+        showError('Access denied. Please ensure you are logged in as the admin.');
+        return;
+      }
+      const keyData = await keyRes.json();
+      APPROVE_KEY = keyData.key;
+      loadRequests();
+    } catch (e) {
+      showError('Failed to initialize admin panel. Please refresh the page.');
+    }
+  }
+
+  function showError(msg) {
+    document.getElementById('requests-container').innerHTML =
+      `<div class="error-state"><div class="empty-icon">🔒</div><div>${msg}</div></div>`;
   }
 
   async function loadRequests() {
@@ -349,6 +374,9 @@
     t.className = 'toast show ' + type;
     setTimeout(() => t.className = 'toast', 3000);
   }
+
+  // Start
+  init();
 </script>
 </body>
 </html>
