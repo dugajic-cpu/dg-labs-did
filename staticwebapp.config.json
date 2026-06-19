@@ -2,7 +2,7 @@
   "routes": [
     {
       "route": "/admin.html",
-      "allowedRoles": ["authenticated"]
+      "allowedRoles": ["admin"]
     },
     {
       "route": "/invite.html",
