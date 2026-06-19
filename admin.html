@@ -34,14 +34,54 @@
     padding: 2rem 1rem;
   }
 
+  /* Key gate — shown until function key is entered */
+  .key-gate {
+    position: fixed; inset: 0; background: var(--bg);
+    display: flex; align-items: center; justify-content: center; z-index: 999;
+  }
+
+  .key-gate-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 2.5rem 2rem;
+    width: 100%; max-width: 380px; text-align: center;
+  }
+
+  .key-gate-logo {
+    width: 42px; height: 42px; background: var(--accent);
+    border-radius: 10px; display: flex; align-items: center;
+    justify-content: center; font-size: 16px; font-weight: 600;
+    color: white; margin: 0 auto 1.5rem;
+  }
+
+  .key-gate-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+  .key-gate-sub { font-size: 13px; color: var(--text-dim); margin-bottom: 1.5rem; }
+
+  .key-gate-input {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px; color: var(--text);
+    font-family: inherit; font-size: 15px; outline: none; margin-bottom: 12px;
+  }
+  .key-gate-input:focus { border-color: var(--accent); }
+
+  .key-gate-btn {
+    width: 100%; padding: 12px; background: var(--accent);
+    border: none; border-radius: 8px; color: white;
+    font-family: inherit; font-size: 15px; font-weight: 500; cursor: pointer;
+  }
+  .key-gate-btn:hover { background: var(--accent-hover); }
+
+  .key-gate-error {
+    color: var(--red); font-size: 13px; margin-top: 10px; display: none;
+  }
+
+  /* Main panel — hidden until key confirmed */
+  .main-panel { display: none; }
+  .main-panel.visible { display: block; }
+
   .header {
-    max-width: 900px;
-    margin: 0 auto 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1rem;
+    max-width: 900px; margin: 0 auto 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 1rem;
   }
 
   .logo { display: flex; align-items: center; gap: 12px; }
@@ -68,11 +108,10 @@
   }
 
   .user-info a {
-    color: var(--text-dim); font-size: 12px;
-    text-decoration: none; border: 1px solid var(--border);
-    padding: 4px 10px; border-radius: 6px; transition: all 0.15s;
+    color: var(--text-dim); font-size: 12px; text-decoration: none;
+    border: 1px solid var(--border); padding: 4px 10px;
+    border-radius: 6px; transition: all 0.15s;
   }
-
   .user-info a:hover { border-color: var(--red); color: var(--red); }
 
   .container { max-width: 900px; margin: 0 auto; }
@@ -183,52 +222,66 @@
   }
   .filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(124,106,247,0.1); }
   .filter-btn:hover { border-color: var(--accent); color: var(--text); }
-
-  .error-state {
-    text-align: center; padding: 3rem; color: var(--red);
-    background: var(--surface); border: 1px solid var(--red); border-radius: 12px;
-  }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="logo">
-    <div class="logo-mark">DG</div>
-    <div class="logo-text">
-      <div class="logo-name">DG Labs</div>
-      <div class="logo-sub">Geneva · AI · Identity · Security</div>
-    </div>
-  </div>
-  <div style="display:flex;align-items:center;gap:12px;">
-    <span class="admin-badge">Admin Panel</span>
-    <div class="user-info">
-      <span id="user-email"></span>
-      <a href="/.auth/logout">Sign out</a>
-    </div>
-    <button class="refresh-btn" onclick="loadRequests()">↻ Refresh</button>
+<!-- Key gate — shown after Microsoft login, before requests load -->
+<div class="key-gate" id="key-gate">
+  <div class="key-gate-card">
+    <div class="key-gate-logo">DG</div>
+    <div class="key-gate-title">Admin Access</div>
+    <div class="key-gate-sub" id="gate-user-info">Enter your function key to continue</div>
+    <input class="key-gate-input" type="password" id="gate-key"
+      placeholder="approve-request function key"
+      onkeydown="if(event.key==='Enter') submitKey()">
+    <button class="key-gate-btn" onclick="submitKey()">Continue</button>
+    <div class="key-gate-error" id="gate-error">Invalid key. Please try again.</div>
   </div>
 </div>
 
-<div class="container">
-  <div class="stats" id="stats">
-    <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value stat-pending" id="count-pending">—</div></div>
-    <div class="stat-card"><div class="stat-label">Veriff Sent</div><div class="stat-value stat-approved" id="count-veriff">—</div></div>
-    <div class="stat-card"><div class="stat-label">Issued</div><div class="stat-value stat-approved" id="count-issued">—</div></div>
-    <div class="stat-card"><div class="stat-label">Rejected</div><div class="stat-value stat-rejected" id="count-rejected">—</div></div>
-    <div class="stat-card"><div class="stat-label">Total</div><div class="stat-value stat-total" id="count-total">—</div></div>
+<!-- Main panel — hidden until key confirmed -->
+<div class="main-panel" id="main-panel">
+  <div class="header">
+    <div class="logo">
+      <div class="logo-mark">DG</div>
+      <div class="logo-text">
+        <div class="logo-name">DG Labs</div>
+        <div class="logo-sub">Geneva · AI · Identity · Security</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span class="admin-badge">Admin Panel</span>
+      <div class="user-info">
+        <span id="user-email"></span>
+        <a href="/.auth/logout">Sign out</a>
+      </div>
+      <button class="refresh-btn" onclick="loadRequests()">↻ Refresh</button>
+    </div>
   </div>
 
-  <div class="filter-row">
-    <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
-    <button class="filter-btn" onclick="setFilter('pending', this)">Pending</button>
-    <button class="filter-btn" onclick="setFilter('veriff_sent', this)">Veriff Sent</button>
-    <button class="filter-btn" onclick="setFilter('credential_issued', this)">Issued</button>
-    <button class="filter-btn" onclick="setFilter('rejected', this)">Rejected</button>
-  </div>
+  <div class="container">
+    <div class="stats">
+      <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value stat-pending" id="count-pending">—</div></div>
+      <div class="stat-card"><div class="stat-label">Veriff Sent</div><div class="stat-value stat-approved" id="count-veriff">—</div></div>
+      <div class="stat-card"><div class="stat-label">Issued</div><div class="stat-value stat-approved" id="count-issued">—</div></div>
+      <div class="stat-card"><div class="stat-label">Rejected</div><div class="stat-value stat-rejected" id="count-rejected">—</div></div>
+      <div class="stat-card"><div class="stat-label">Total</div><div class="stat-value stat-total" id="count-total">—</div></div>
+    </div>
 
-  <div class="section-title">Onboarding Requests</div>
-  <div id="requests-container"><div class="loading"><div class="spinner"></div><div>Loading requests...</div></div></div>
+    <div class="filter-row">
+      <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+      <button class="filter-btn" onclick="setFilter('pending', this)">Pending</button>
+      <button class="filter-btn" onclick="setFilter('veriff_sent', this)">Veriff Sent</button>
+      <button class="filter-btn" onclick="setFilter('credential_issued', this)">Issued</button>
+      <button class="filter-btn" onclick="setFilter('rejected', this)">Rejected</button>
+    </div>
+
+    <div class="section-title">Onboarding Requests</div>
+    <div id="requests-container">
+      <div class="loading"><div class="spinner"></div><div>Loading requests...</div></div>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -236,47 +289,47 @@
 <script>
   const BASE_URL = 'https://dg-labs-vc-callback-fzdwg5fjb4cncgca.westeurope-01.azurewebsites.net/api';
   const LIST_URL = BASE_URL + '/list-requests';
-  const GET_KEY_URL = BASE_URL + '/get-admin-key';
   let APPROVE_KEY = '';
   let allRequests = [];
   let currentFilter = 'all';
 
-  // On page load — get user info and fetch the key
+  // On page load — get user info from Microsoft auth
   async function init() {
-    // Get authenticated user info from Static Web Apps
     try {
       const authRes = await fetch('/.auth/me');
       const authData = await authRes.json();
       const user = authData?.clientPrincipal;
       if (user?.userDetails) {
-        document.getElementById('user-email').textContent = user.userDetails;
+        const email = user.userDetails;
+        document.getElementById('user-email').textContent = email;
+        document.getElementById('gate-user-info').textContent =
+          `Signed in as ${email} — enter your function key to continue`;
       }
     } catch (e) {
-      // Non-critical — just won't show email in header
-    }
-
-    // Fetch the approve-request key from get-admin-key function
-    try {
-      const keyRes = await fetch(GET_KEY_URL);
-      if (!keyRes.ok) {
-        showError('Access denied. Please ensure you are logged in as the admin.');
-        return;
-      }
-      const keyData = await keyRes.json();
-      APPROVE_KEY = keyData.key;
-      loadRequests();
-    } catch (e) {
-      showError('Failed to initialize admin panel. Please refresh the page.');
+      // Non-critical
     }
   }
 
-  function showError(msg) {
-    document.getElementById('requests-container').innerHTML =
-      `<div class="error-state"><div class="empty-icon">🔒</div><div>${msg}</div></div>`;
+  async function submitKey() {
+    const key = document.getElementById('gate-key').value.trim();
+    if (!key) {
+      document.getElementById('gate-error').style.display = 'block';
+      return;
+    }
+
+    // Test the key by calling list-requests
+    // If it loads successfully, the key is valid and we proceed
+    APPROVE_KEY = key;
+
+    // Hide gate, show panel
+    document.getElementById('key-gate').style.display = 'none';
+    document.getElementById('main-panel').classList.add('visible');
+    loadRequests();
   }
 
   async function loadRequests() {
-    document.getElementById('requests-container').innerHTML = '<div class="loading"><div class="spinner"></div><div>Loading...</div></div>';
+    document.getElementById('requests-container').innerHTML =
+      '<div class="loading"><div class="spinner"></div><div>Loading...</div></div>';
     try {
       const res = await fetch(LIST_URL);
       const data = await res.json();
@@ -284,7 +337,8 @@
       updateStats();
       renderRequests();
     } catch (e) {
-      document.getElementById('requests-container').innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><div>Failed to load requests. Check your connection.</div></div>';
+      document.getElementById('requests-container').innerHTML =
+        '<div class="empty-state"><div class="empty-icon">⚠️</div><div>Failed to load requests. Check your connection.</div></div>';
     }
   }
 
@@ -306,10 +360,12 @@
   }
 
   function renderRequests() {
-    const filtered = currentFilter === 'all' ? allRequests : allRequests.filter(r => r.status === currentFilter);
+    const filtered = currentFilter === 'all' ? allRequests :
+      allRequests.filter(r => r.status === currentFilter);
     const container = document.getElementById('requests-container');
     if (filtered.length === 0) {
-      container.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div>No requests found.</div></div>';
+      container.innerHTML =
+        '<div class="empty-state"><div class="empty-icon">📭</div><div>No requests found.</div></div>';
       return;
     }
     container.innerHTML = filtered.map(r => `
@@ -335,13 +391,19 @@
   }
 
   function formatStatus(status) {
-    const map = { pending: 'Pending', veriff_sent: 'Veriff Sent', credential_issued: 'Issued', rejected: 'Rejected' };
+    const map = {
+      pending: 'Pending', veriff_sent: 'Veriff Sent',
+      credential_issued: 'Issued', rejected: 'Rejected'
+    };
     return map[status] || status;
   }
 
   function formatDate(iso) {
     if (!iso) return '—';
-    return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return new Date(iso).toLocaleDateString('en-GB', {
+      day: 'numeric', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
   }
 
   async function decide(email, decision, rowKey) {
@@ -356,7 +418,8 @@
       });
       const data = await res.json();
       if (data.success) {
-        showToast(decision === 'approve' ? '✓ Approved — Veriff link sent' : '✗ Rejected — applicant notified', 'success');
+        showToast(decision === 'approve' ?
+          '✓ Approved — Veriff link sent' : '✗ Rejected — applicant notified', 'success');
         setTimeout(loadRequests, 1000);
       } else {
         showToast('Error: ' + (data.message || 'Something went wrong'), 'error');
