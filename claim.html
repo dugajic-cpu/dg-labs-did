@@ -1,1 +1,339 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DG Labs — Claim Your Credential</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%237c6af7'/><text y='72' x='50' text-anchor='middle' font-size='55' font-family='Arial' font-weight='bold' fill='white'>DG</text></svg>">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0d14;
+    --surface: #13172a;
+    --border: #1e2340;
+    --accent: #7c6af7;
+    --accent-hover: #6a59e0;
+    --text: #e8e9f0;
+    --text-dim: #8b8fa8;
+    --green: #4eca8b;
+    --red: #f07070;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    width: 100%;
+    max-width: 440px;
+    text-align: center;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 2rem;
+  }
+
+  .logo-mark {
+    width: 42px;
+    height: 42px;
+    background: var(--accent);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+  }
+
+  .logo-text { line-height: 1.2; text-align: left; }
+  .logo-name { font-size: 15px; font-weight: 600; }
+  .logo-sub { font-size: 11px; color: var(--text-dim); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  h1 { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+  p.subtitle { font-size: 14px; color: var(--text-dim); line-height: 1.7; margin-bottom: 1.5rem; }
+
+  .qr-container {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    display: inline-block;
+    margin: 1.5rem auto;
+  }
+
+  .qr-container img {
+    width: 200px;
+    height: 200px;
+    display: block;
+  }
+
+  .countdown {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 1rem;
+  }
+
+  .countdown span {
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .countdown.urgent span { color: var(--red); }
+
+  .btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-top: 8px;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .btn:hover { background: var(--accent-hover); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+  }
+
+  .btn-secondary:hover { border-color: var(--accent); color: var(--text); background: transparent; }
+
+  .spinner {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 2rem auto;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .message {
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-top: 12px;
+  }
+
+  .message.error { background: rgba(240,112,112,0.1); border: 1px solid var(--red); color: var(--red); }
+  .message.success { background: rgba(78,202,139,0.1); border: 1px solid var(--green); color: var(--green); }
+
+  .instructions {
+    background: rgba(124,106,247,0.08);
+    border: 1px solid rgba(124,106,247,0.25);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin: 1rem 0;
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.7;
+    text-align: left;
+  }
+
+  .instructions strong { color: var(--text); }
+
+  .step { display: none; }
+  .step.active { display: block; }
+
+  footer {
+    margin-top: 2rem;
+    font-size: 12px;
+    color: var(--text-dim);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">
+    <div class="logo-mark">DG</div>
+    <div class="logo-text">
+      <div class="logo-name">DG Labs</div>
+      <div class="logo-sub">Geneva · AI · Identity · Security</div>
+    </div>
+  </div>
+
+  <!-- Step 1: Loading -->
+  <div class="step active" id="step-loading">
+    <h1>Preparing your credential</h1>
+    <p class="subtitle">Generating your personal QR code...</p>
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Step 2: QR code ready -->
+  <div class="step" id="step-qr">
+    <h1>Your credential is ready</h1>
+    <p class="subtitle">Scan the QR code below with <strong>Microsoft Authenticator</strong> to add your DG Labs Verified ID.</p>
+
+    <div class="qr-container">
+      <img id="qr-image" src="" alt="Scan with Microsoft Authenticator">
+    </div>
+
+    <div class="countdown" id="countdown">
+      QR code expires in <span id="timer">5:00</span>
+    </div>
+
+    <div class="instructions">
+      <strong>How to scan:</strong><br>
+      Open Microsoft Authenticator → tap <strong>+</strong> → tap <strong>Other</strong> or <strong>Verified ID</strong> → scan this code
+    </div>
+
+    <a id="deep-link-btn" href="#" class="btn">
+      Or tap here to open Authenticator directly
+    </a>
+
+    <button class="btn btn-secondary" onclick="generateQr()" style="margin-top:10px;">
+      ↻ Generate new QR code
+    </button>
+  </div>
+
+  <!-- Step 3: Expired -->
+  <div class="step" id="step-expired">
+    <div style="font-size:48px;margin-bottom:1rem;">⏱</div>
+    <h1>QR code expired</h1>
+    <p class="subtitle">The QR code has expired. Generate a new one — it only takes a second.</p>
+    <button class="btn" onclick="generateQr()">Generate new QR code</button>
+  </div>
+
+  <!-- Step 4: Error -->
+  <div class="step" id="step-error">
+    <div style="font-size:48px;margin-bottom:1rem;">⚠️</div>
+    <h1>Something went wrong</h1>
+    <p class="subtitle" id="error-message">Unable to generate your credential. Please try again.</p>
+    <button class="btn" onclick="generateQr()">Try again</button>
+  </div>
+
+  <!-- Step 5: Missing params -->
+  <div class="step" id="step-invalid">
+    <div style="font-size:48px;margin-bottom:1rem;">🔗</div>
+    <h1>Invalid link</h1>
+    <p class="subtitle">This link is missing required information. Please use the link from your DG Labs credential email.</p>
+  </div>
+
+</div>
+
+<footer>DG Labs — Geneva &nbsp;·&nbsp; AI Governance &amp; Identity Security</footer>
+
+<script>
+  const VC_ISSUE_URL = 'https://dg-labs-vc-callback-fzdwg5fjb4cncgca.westeurope-01.azurewebsites.net/api/vc-issue';
+
+  const params = new URLSearchParams(window.location.search);
+  const email = params.get('email');
+  const firstName = params.get('firstName');
+  const lastName = params.get('lastName');
+
+  let countdownInterval = null;
+
+  function showStep(id) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  async function generateQr() {
+    if (!email || !firstName || !lastName) {
+      showStep('step-invalid');
+      return;
+    }
+
+    showStep('step-loading');
+    if (countdownInterval) clearInterval(countdownInterval);
+
+    try {
+      const res = await fetch(VC_ISSUE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, firstName, lastName })
+      });
+
+      const data = await res.json();
+
+      if (data.error) {
+        document.getElementById('error-message').textContent =
+          data.error.message || 'Unable to generate credential. Please try again.';
+        showStep('step-error');
+        return;
+      }
+
+      if (data.qrCode && data.url) {
+        document.getElementById('qr-image').src = data.qrCode;
+        document.getElementById('deep-link-btn').href = data.url;
+        showStep('step-qr');
+        startCountdown(5 * 60);
+      } else {
+        showStep('step-error');
+      }
+
+    } catch (e) {
+      document.getElementById('error-message').textContent = 'Network error. Please check your connection.';
+      showStep('step-error');
+    }
+  }
+
+  function startCountdown(seconds) {
+    let remaining = seconds;
+
+    function update() {
+      const mins = Math.floor(remaining / 60);
+      const secs = remaining % 60;
+      const display = `${mins}:${secs.toString().padStart(2, '0')}`;
+      document.getElementById('timer').textContent = display;
+
+      const el = document.getElementById('countdown');
+      if (remaining <= 60) {
+        el.classList.add('urgent');
+      } else {
+        el.classList.remove('urgent');
+      }
+
+      if (remaining <= 0) {
+        clearInterval(countdownInterval);
+        showStep('step-expired');
+      }
+      remaining--;
+    }
+
+    update();
+    countdownInterval = setInterval(update, 1000);
+  }
+
+  // Start on page load
+  generateQr();
+</script>
+</body>
+</html>
