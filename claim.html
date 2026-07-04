@@ -238,6 +238,13 @@
     <button class="btn" onclick="generateQr()">Try again</button>
   </div>
 
+  <!-- Step 6: Credential already issued -->
+  <div class="step" id="step-blocked">
+    <div style="font-size:48px;margin-bottom:1rem;">✓</div>
+    <h1>Credential already issued</h1>
+    <p class="subtitle">Your DG Labs Verified ID has already been issued to your Microsoft Authenticator. If you need assistance, contact <a href="mailto:dusan@dgajic.com" style="color:var(--accent);">dusan@dgajic.com</a></p>
+  </div>
+  
   <!-- Step 5: Missing params -->
   <div class="step" id="step-invalid">
     <div style="font-size:48px;margin-bottom:1rem;">🔗</div>
@@ -280,11 +287,17 @@
         body: JSON.stringify({ email, firstName, lastName })
       });
 
+      // Credential already issued and 15-minute window has passed
+      if (res.status === 403) {
+        showStep('step-blocked');
+        return;
+      }
+
       const data = await res.json();
 
       if (data.error) {
         document.getElementById('error-message').textContent =
-          data.error.message || 'Unable to generate credential. Please try again.';
+          data.message || 'Unable to generate credential. Please try again.';
         showStep('step-error');
         return;
       }
