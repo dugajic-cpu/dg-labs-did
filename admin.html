@@ -7,120 +7,38 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%237c6af7'/><text y='72' x='50' text-anchor='middle' font-size='55' font-family='Arial' font-weight='bold' fill='white'>DG</text></svg>">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
-
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --bg: #0a0d14;
-    --surface: #13172a;
-    --surface2: #1a1f35;
-    --border: #1e2340;
-    --accent: #7c6af7;
-    --accent-hover: #6a59e0;
-    --text: #e8e9f0;
-    --text-dim: #8b8fa8;
-    --green: #4eca8b;
-    --amber: #f0a854;
-    --red: #f07070;
-    --blue: #5ba3f5;
-    --sans: 'IBM Plex Sans', sans-serif;
+    --bg: #0a0d14; --surface: #13172a; --border: #1e2340;
+    --accent: #7c6af7; --accent-hover: #6a59e0; --text: #e8e9f0;
+    --text-dim: #8b8fa8; --green: #4eca8b; --amber: #f0a854;
+    --red: #f07070; --blue: #5ba3f5; --sans: 'IBM Plex Sans', sans-serif;
   }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    min-height: 100vh;
-    padding: 2rem 1rem;
-  }
-
-  /* Key gate — shown until function key is entered */
-  .key-gate {
-    position: fixed; inset: 0; background: var(--bg);
-    display: flex; align-items: center; justify-content: center; z-index: 999;
-  }
-
-  .key-gate-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 16px; padding: 2.5rem 2rem;
-    width: 100%; max-width: 380px; text-align: center;
-  }
-
-  .key-gate-logo {
-    width: 42px; height: 42px; background: var(--accent);
-    border-radius: 10px; display: flex; align-items: center;
-    justify-content: center; font-size: 16px; font-weight: 600;
-    color: white; margin: 0 auto 1.5rem;
-  }
-
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; padding: 2rem 1rem; }
+  .key-gate { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 999; }
+  .key-gate-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem 2rem; width: 100%; max-width: 380px; text-align: center; }
+  .key-gate-logo { width: 42px; height: 42px; background: var(--accent); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 600; color: white; margin: 0 auto 1.5rem; }
   .key-gate-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
-  .key-gate-sub { font-size: 13px; color: var(--text-dim); margin-bottom: 1.5rem; }
-
-  .key-gate-input {
-    width: 100%; background: var(--bg); border: 1px solid var(--border);
-    border-radius: 8px; padding: 12px 14px; color: var(--text);
-    font-family: inherit; font-size: 15px; outline: none; margin-bottom: 12px;
-  }
+  .key-gate-sub { font-size: 13px; color: var(--text-dim); margin-bottom: 1.5rem; line-height: 1.5; }
+  .key-gate-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; color: var(--text); font-family: inherit; font-size: 15px; outline: none; margin-bottom: 12px; }
   .key-gate-input:focus { border-color: var(--accent); }
-
-  .key-gate-btn {
-    width: 100%; padding: 12px; background: var(--accent);
-    border: none; border-radius: 8px; color: white;
-    font-family: inherit; font-size: 15px; font-weight: 500; cursor: pointer;
-  }
+  .key-gate-btn { width: 100%; padding: 12px; background: var(--accent); border: none; border-radius: 8px; color: white; font-family: inherit; font-size: 15px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
   .key-gate-btn:hover { background: var(--accent-hover); }
-
-  .key-gate-error {
-    color: var(--red); font-size: 13px; margin-top: 10px; display: none;
-  }
-
-  /* Main panel — hidden until key confirmed */
+  .key-gate-error { color: var(--red); font-size: 13px; margin-top: 10px; display: none; }
   .main-panel { display: none; }
   .main-panel.visible { display: block; }
-
-  .header {
-    max-width: 900px; margin: 0 auto 2rem;
-    display: flex; align-items: center; justify-content: space-between;
-    flex-wrap: wrap; gap: 1rem;
-  }
-
+  .header { max-width: 900px; margin: 0 auto 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
   .logo { display: flex; align-items: center; gap: 12px; }
-
-  .logo-mark {
-    width: 42px; height: 42px; background: var(--accent);
-    border-radius: 10px; display: flex; align-items: center;
-    justify-content: center; font-size: 16px; font-weight: 600; color: white;
-  }
-
+  .logo-mark { width: 42px; height: 42px; background: var(--accent); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 600; color: white; }
   .logo-text { line-height: 1.2; }
   .logo-name { font-size: 15px; font-weight: 600; }
   .logo-sub { font-size: 11px; color: var(--text-dim); letter-spacing: 0.08em; text-transform: uppercase; }
-
-  .admin-badge {
-    background: rgba(240,168,84,0.15); border: 1px solid rgba(240,168,84,0.3);
-    color: var(--amber); font-size: 11px; font-weight: 600;
-    letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 12px; border-radius: 20px;
-  }
-
-  .user-info {
-    font-size: 13px; color: var(--text-dim);
-    display: flex; align-items: center; gap: 8px;
-  }
-
-  .user-info a {
-    color: var(--text-dim); font-size: 12px; text-decoration: none;
-    border: 1px solid var(--border); padding: 4px 10px;
-    border-radius: 6px; transition: all 0.15s;
-  }
+  .admin-badge { background: rgba(240,168,84,0.15); border: 1px solid rgba(240,168,84,0.3); color: var(--amber); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; }
+  .user-info { font-size: 13px; color: var(--text-dim); display: flex; align-items: center; gap: 8px; }
+  .user-info a { color: var(--text-dim); font-size: 12px; text-decoration: none; border: 1px solid var(--border); padding: 4px 10px; border-radius: 6px; transition: all 0.15s; }
   .user-info a:hover { border-color: var(--red); color: var(--red); }
-
   .container { max-width: 900px; margin: 0 auto; }
-
-  .stats {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 12px; margin-bottom: 2rem;
-  }
-
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
   .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
   .stat-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
   .stat-value { font-size: 28px; font-weight: 600; }
@@ -128,155 +46,60 @@
   .stat-approved { color: var(--green); }
   .stat-rejected { color: var(--red); }
   .stat-total { color: var(--text); }
-
-  .section-title {
-    font-size: 13px; font-weight: 600; color: var(--text-dim);
-    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px;
-  }
-
-  .request-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 12px; transition: border-color 0.15s;
-  }
+  .section-title { font-size: 13px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+  .request-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 12px; transition: border-color 0.15s; }
   .request-card:hover { border-color: var(--accent); }
-
-  .request-header {
-    display: flex; align-items: flex-start; justify-content: space-between;
-    gap: 1rem; flex-wrap: wrap; margin-bottom: 12px;
-  }
-
+  .request-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 12px; }
   .request-name { font-size: 16px; font-weight: 500; margin-bottom: 4px; }
   .request-email { font-size: 13px; color: var(--text-dim); }
-
-  .status-badge {
-    font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
-    text-transform: uppercase; padding: 4px 10px; border-radius: 20px; white-space: nowrap;
-  }
-
+  .status-badge { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
   .status-pending { background: rgba(240,168,84,0.15); color: var(--amber); border: 1px solid rgba(240,168,84,0.3); }
   .status-veriff_sent { background: rgba(91,163,245,0.15); color: var(--blue); border: 1px solid rgba(91,163,245,0.3); }
   .status-credential_issued { background: rgba(78,202,139,0.15); color: var(--green); border: 1px solid rgba(78,202,139,0.3); }
   .status-rejected { background: rgba(240,112,112,0.15); color: var(--red); border: 1px solid rgba(240,112,112,0.3); }
-
-  .request-meta {
-    display: flex; gap: 1.5rem; flex-wrap: wrap;
-    font-size: 13px; color: var(--text-dim); margin-bottom: 14px;
-  }
+  .request-meta { display: flex; gap: 1.5rem; flex-wrap: wrap; font-size: 13px; color: var(--text-dim); margin-bottom: 12px; }
   .meta-item strong { color: var(--text); }
+  .request-device { background: rgba(124,106,247,0.05); border: 1px solid rgba(124,106,247,0.15); border-radius: 6px; padding: 8px 12px; margin-bottom: 12px; font-size: 12px; }
+  .device-row { display: flex; align-items: baseline; gap: 8px; padding: 3px 0; flex-wrap: wrap; }
+  .device-label { color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; font-size: 10px; min-width: 44px; flex-shrink: 0; }
+  .device-value { color: var(--text); font-family: monospace; font-size: 12px; }
+  .device-geo { color: var(--text-dim); font-size: 11px; }
   .request-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-
-  .btn-approve {
-    padding: 8px 20px; background: rgba(78,202,139,0.15);
-    border: 1px solid rgba(78,202,139,0.4); border-radius: 6px;
-    color: var(--green); font-family: var(--sans); font-size: 13px;
-    font-weight: 500; cursor: pointer; transition: all 0.15s;
-  }
+  .btn-approve { padding: 8px 20px; background: rgba(78,202,139,0.15); border: 1px solid rgba(78,202,139,0.4); border-radius: 6px; color: var(--green); font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
   .btn-approve:hover { background: rgba(78,202,139,0.25); }
-
-  .btn-reject {
-    padding: 8px 20px; background: rgba(240,112,112,0.1);
-    border: 1px solid rgba(240,112,112,0.3); border-radius: 6px;
-    color: var(--red); font-family: var(--sans); font-size: 13px;
-    font-weight: 500; cursor: pointer; transition: all 0.15s;
-  }
+  .btn-reject { padding: 8px 20px; background: rgba(240,112,112,0.1); border: 1px solid rgba(240,112,112,0.3); border-radius: 6px; color: var(--red); font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
   .btn-reject:hover { background: rgba(240,112,112,0.2); }
   .btn-approve:disabled, .btn-reject:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  .empty-state {
-    text-align: center; padding: 3rem; color: var(--text-dim);
-    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-  }
+  .empty-state { text-align: center; padding: 3rem; color: var(--text-dim); background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
   .empty-icon { font-size: 36px; margin-bottom: 12px; }
-
-  .toast {
-    position: fixed; bottom: 2rem; right: 2rem; padding: 12px 20px;
-    border-radius: 8px; font-size: 14px; font-weight: 500;
-    opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100;
-  }
+  .toast { position: fixed; bottom: 2rem; right: 2rem; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100; }
   .toast.show { opacity: 1; }
   .toast.success { background: rgba(78,202,139,0.15); border: 1px solid var(--green); color: var(--green); }
   .toast.error { background: rgba(240,112,112,0.1); border: 1px solid var(--red); color: var(--red); }
-
   .loading { text-align: center; padding: 3rem; color: var(--text-dim); }
-
-  .spinner {
-    display: inline-block; width: 20px; height: 20px;
-    border: 2px solid var(--border); border-top-color: var(--accent);
-    border-radius: 50%; animation: spin 0.7s linear infinite; margin-bottom: 12px;
-  }
+  .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin-bottom: 12px; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  .refresh-btn {
-    padding: 8px 16px; background: transparent; border: 1px solid var(--border);
-    border-radius: 6px; color: var(--text-dim); font-family: var(--sans);
-    font-size: 13px; cursor: pointer; transition: all 0.15s;
-  }
+  .refresh-btn { padding: 8px 16px; background: transparent; border: 1px solid var(--border); border-radius: 6px; color: var(--text-dim); font-family: var(--sans); font-size: 13px; cursor: pointer; transition: all 0.15s; }
   .refresh-btn:hover { border-color: var(--accent); color: var(--text); }
-
   .filter-row { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; }
-
-  .filter-btn {
-    padding: 6px 14px; background: transparent; border: 1px solid var(--border);
-    border-radius: 20px; color: var(--text-dim); font-family: var(--sans);
-    font-size: 12px; cursor: pointer; transition: all 0.15s;
-  }
+  .filter-btn { padding: 6px 14px; background: transparent; border: 1px solid var(--border); border-radius: 20px; color: var(--text-dim); font-family: var(--sans); font-size: 12px; cursor: pointer; transition: all 0.15s; }
   .filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(124,106,247,0.1); }
   .filter-btn:hover { border-color: var(--accent); color: var(--text); }
-.request-device {
-    background: rgba(124,106,247,0.05);
-    border: 1px solid rgba(124,106,247,0.15);
-    border-radius: 6px;
-    padding: 8px 12px;
-    margin-bottom: 12px;
-    font-size: 12px;
-  }
-
-  .device-row {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    padding: 3px 0;
-    flex-wrap: wrap;
-  }
-
-  .device-label {
-    color: var(--text-dim);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    font-size: 10px;
-    min-width: 44px;
-    flex-shrink: 0;
-  }
-
-  .device-value {
-    color: var(--text);
-    font-family: monospace;
-    font-size: 12px;
-  }
-
-  .device-geo {
-    color: var(--text-dim);
-    font-size: 11px;
-  }
 </style>
 </head>
 <body>
-
-<!-- Key gate — shown after Microsoft login, before requests load -->
+ 
 <div class="key-gate" id="key-gate">
   <div class="key-gate-card">
     <div class="key-gate-logo">DG</div>
     <div class="key-gate-title">Admin Access</div>
     <div class="key-gate-sub" id="gate-user-info">Enter your function key to continue</div>
-    <input class="key-gate-input" type="password" id="gate-key"
-      placeholder="approve-request function key"
-      onkeydown="if(event.key==='Enter') submitKey()">
+    <input class="key-gate-input" type="password" id="gate-key" placeholder="approve-request function key" onkeydown="if(event.key==='Enter') submitKey()">
     <button class="key-gate-btn" onclick="submitKey()">Continue</button>
-    <div class="key-gate-error" id="gate-error">Invalid key. Please try again.</div>
+    <div class="key-gate-error" id="gate-error">Please enter the function key.</div>
   </div>
 </div>
-
-<!-- Main panel — hidden until key confirmed -->
+ 
 <div class="main-panel" id="main-panel">
   <div class="header">
     <div class="logo">
@@ -292,10 +115,10 @@
         <span id="user-email"></span>
         <a href="/.auth/logout">Sign out</a>
       </div>
-      <button class="refresh-btn" onclick="loadRequests()">↻ Refresh</button>
+      <button class="refresh-btn" onclick="loadRequests()">&#8635; Refresh</button>
     </div>
   </div>
-
+ 
   <div class="container">
     <div class="stats">
       <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value stat-pending" id="count-pending">—</div></div>
@@ -304,7 +127,7 @@
       <div class="stat-card"><div class="stat-label">Rejected</div><div class="stat-value stat-rejected" id="count-rejected">—</div></div>
       <div class="stat-card"><div class="stat-label">Total</div><div class="stat-value stat-total" id="count-total">—</div></div>
     </div>
-
+ 
     <div class="filter-row">
       <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
       <button class="filter-btn" onclick="setFilter('pending', this)">Pending</button>
@@ -312,24 +135,21 @@
       <button class="filter-btn" onclick="setFilter('credential_issued', this)">Issued</button>
       <button class="filter-btn" onclick="setFilter('rejected', this)">Rejected</button>
     </div>
-
+ 
     <div class="section-title">Onboarding Requests</div>
-    <div id="requests-container">
-      <div class="loading"><div class="spinner"></div><div>Loading requests...</div></div>
-    </div>
+    <div id="requests-container"><div class="loading"><div class="spinner"></div><div>Loading requests...</div></div></div>
   </div>
 </div>
-
+ 
 <div class="toast" id="toast"></div>
-
+ 
 <script>
   const BASE_URL = 'https://dg-labs-vc-callback-fzdwg5fjb4cncgca.westeurope-01.azurewebsites.net/api';
   const LIST_URL = BASE_URL + '/list-requests';
   let APPROVE_KEY = '';
   let allRequests = [];
   let currentFilter = 'all';
-
-  // On page load — get user info from Microsoft auth
+ 
   async function init() {
     const savedKey = sessionStorage.getItem('approveKey');
     if (savedKey) {
@@ -337,7 +157,6 @@
       document.getElementById('key-gate').style.display = 'none';
       document.getElementById('main-panel').classList.add('visible');
     }
-
     try {
       const authRes = await fetch('/.auth/me');
       const authData = await authRes.json();
@@ -346,14 +165,12 @@
         const email = user.userDetails;
         document.getElementById('user-email').textContent = email;
         document.getElementById('gate-user-info').textContent =
-          `Signed in as ${email} — enter your function key to continue`;
+          'Signed in as ' + email + ' — enter your function key to continue';
       }
-    } catch (e) {
-      // Non-critical
-    }
-    if (APPROVE_KEY) loadRequests(); 
+    } catch (e) {}
+    if (APPROVE_KEY) loadRequests();
   }
-
+ 
   async function submitKey() {
     const key = document.getElementById('gate-key').value.trim();
     if (!key) {
@@ -366,7 +183,22 @@
     document.getElementById('main-panel').classList.add('visible');
     loadRequests();
   }
-
+ 
+  async function loadRequests() {
+    document.getElementById('requests-container').innerHTML =
+      '<div class="loading"><div class="spinner"></div><div>Loading...</div></div>';
+    try {
+      const res = await fetch(LIST_URL);
+      const data = await res.json();
+      allRequests = data.requests || [];
+      updateStats();
+      renderRequests();
+    } catch (e) {
+      document.getElementById('requests-container').innerHTML =
+        '<div class="empty-state"><div class="empty-icon">⚠️</div><div>Failed to load requests. Check your connection.</div></div>';
+    }
+  }
+ 
   function updateStats() {
     const counts = { pending: 0, veriff_sent: 0, credential_issued: 0, rejected: 0 };
     allRequests.forEach(r => { if (counts[r.status] !== undefined) counts[r.status]++; });
@@ -376,73 +208,72 @@
     document.getElementById('count-rejected').textContent = counts.rejected;
     document.getElementById('count-total').textContent = allRequests.length;
   }
-
+ 
   function setFilter(filter, btn) {
     currentFilter = filter;
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     renderRequests();
   }
-
+ 
   function renderRequests() {
     const filtered = currentFilter === 'all' ? allRequests :
       allRequests.filter(r => r.status === currentFilter);
     const container = document.getElementById('requests-container');
     if (filtered.length === 0) {
-      container.innerHTML =
-        '<div class="empty-state"><div class="empty-icon">📭</div><div>No requests found.</div></div>';
+      container.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div>No requests found.</div></div>';
       return;
     }
-    container.innerHTML = filtered.map(r => `
-      <div class="request-card" id="card-${r.rowKey}">
-        <div class="request-header">
-          <div>
-            <div class="request-name">${r.firstName} ${r.lastName}</div>
-            <div class="request-email">${r.email}</div>
-          </div>
-          <span class="status-badge status-${r.status}">${formatStatus(r.status)}</span>
-        </div>
-       <div class="request-meta">
-          <div class="meta-item">Country <strong>${r.country}</strong></div>
-          <div class="meta-item">Submitted <strong>${formatDate(r.createdAt)}</strong></div>
-        </div>
-        ${r.ipAddress ? `
-        <div class="request-device">
-          <div class="device-row">
-            <span class="device-label">IP</span>
-            <span class="device-value">${r.ipAddress}</span>
-            ${r.geoCity ? `<span class="device-geo">${r.geoCity}${r.geoRegion ? ', ' + r.geoRegion : ''} · ${r.geoCountry} · ${r.geoIsp}</span>` : ''}
-          </div>
-          <div class="device-row">
-            <span class="device-label">Device</span>
-            <span class="device-value">${r.deviceType} · ${r.os} · ${r.browser}</span>
-          </div>
-        </div>` : ''}
-        ${r.status === 'pending' ? `
-        <div class="request-actions">
-          <button class="btn-approve" onclick="decide('${r.email}', 'approve', '${r.rowKey}')">✓ Approve</button>
-          <button class="btn-reject" onclick="decide('${r.email}', 'reject', '${r.rowKey}')">✗ Reject</button>
-        </div>` : ''}
-      </div>
-    `).join('');
+    container.innerHTML = filtered.map(r => {
+      const deviceBlock = r.ipAddress ? (
+        '<div class="request-device">' +
+          '<div class="device-row">' +
+            '<span class="device-label">IP</span>' +
+            '<span class="device-value">' + r.ipAddress + '</span>' +
+            (r.geoCity ? '<span class="device-geo">' + r.geoCity + (r.geoRegion ? ', ' + r.geoRegion : '') + ' · ' + r.geoCountry + ' · ' + r.geoIsp + '</span>' : '') +
+          '</div>' +
+          '<div class="device-row">' +
+            '<span class="device-label">Device</span>' +
+            '<span class="device-value">' + (r.deviceType||'') + ' · ' + (r.os||'') + ' · ' + (r.browser||'') + '</span>' +
+          '</div>' +
+        '</div>'
+      ) : '';
+ 
+      const actionBlock = r.status === 'pending' ? (
+        '<div class="request-actions">' +
+          '<button class="btn-approve" onclick="decide(\'' + r.email + '\', \'approve\', \'' + r.rowKey + '\')">✓ Approve</button>' +
+          '<button class="btn-reject" onclick="decide(\'' + r.email + '\', \'reject\', \'' + r.rowKey + '\')">✗ Reject</button>' +
+        '</div>'
+      ) : '';
+ 
+      return '<div class="request-card" id="card-' + r.rowKey + '">' +
+        '<div class="request-header">' +
+          '<div>' +
+            '<div class="request-name">' + r.firstName + ' ' + r.lastName + '</div>' +
+            '<div class="request-email">' + r.email + '</div>' +
+          '</div>' +
+          '<span class="status-badge status-' + r.status + '">' + formatStatus(r.status) + '</span>' +
+        '</div>' +
+        '<div class="request-meta">' +
+          '<div class="meta-item">Country <strong>' + r.country + '</strong></div>' +
+          '<div class="meta-item">Submitted <strong>' + formatDate(r.createdAt) + '</strong></div>' +
+        '</div>' +
+        deviceBlock +
+        actionBlock +
+      '</div>';
+    }).join('');
   }
-
+ 
   function formatStatus(status) {
-    const map = {
-      pending: 'Pending', veriff_sent: 'Veriff Sent',
-      credential_issued: 'Issued', rejected: 'Rejected'
-    };
+    const map = { pending: 'Pending', veriff_sent: 'Veriff Sent', credential_issued: 'Issued', rejected: 'Rejected' };
     return map[status] || status;
   }
-
+ 
   function formatDate(iso) {
     if (!iso) return '—';
-    return new Date(iso).toLocaleDateString('en-GB', {
-      day: 'numeric', month: 'short', year: 'numeric',
-      hour: '2-digit', minute: '2-digit'
-    });
+    return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   }
-
+ 
   async function decide(email, decision, rowKey) {
     const card = document.getElementById('card-' + rowKey);
     const btns = card.querySelectorAll('button');
@@ -455,8 +286,7 @@
       });
       const data = await res.json();
       if (data.success) {
-        showToast(decision === 'approve' ?
-          '✓ Approved — Veriff link sent' : '✗ Rejected — applicant notified', 'success');
+        showToast(decision === 'approve' ? '✓ Approved — Veriff link sent' : '✗ Rejected — applicant notified', 'success');
         setTimeout(loadRequests, 1000);
       } else {
         showToast('Error: ' + (data.message || 'Something went wrong'), 'error');
@@ -467,15 +297,14 @@
       btns.forEach(b => b.disabled = false);
     }
   }
-
+ 
   function showToast(msg, type) {
     const t = document.getElementById('toast');
     t.textContent = msg;
     t.className = 'toast show ' + type;
     setTimeout(() => t.className = 'toast', 3000);
   }
-
-  // Start
+ 
   init();
 </script>
 </body>
