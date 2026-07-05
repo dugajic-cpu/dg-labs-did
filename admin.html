@@ -222,6 +222,42 @@
   }
   .filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(124,106,247,0.1); }
   .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+.request-device {
+    background: rgba(124,106,247,0.05);
+    border: 1px solid rgba(124,106,247,0.15);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    font-size: 12px;
+  }
+
+  .device-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 3px 0;
+    flex-wrap: wrap;
+  }
+
+  .device-label {
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 10px;
+    min-width: 44px;
+    flex-shrink: 0;
+  }
+
+  .device-value {
+    color: var(--text);
+    font-family: monospace;
+    font-size: 12px;
+  }
+
+  .device-geo {
+    color: var(--text-dim);
+    font-size: 11px;
+  }
 </style>
 </head>
 <body>
@@ -377,10 +413,22 @@
           </div>
           <span class="status-badge status-${r.status}">${formatStatus(r.status)}</span>
         </div>
-        <div class="request-meta">
+       <div class="request-meta">
           <div class="meta-item">Country <strong>${r.country}</strong></div>
           <div class="meta-item">Submitted <strong>${formatDate(r.createdAt)}</strong></div>
         </div>
+        ${r.ipAddress ? `
+        <div class="request-device">
+          <div class="device-row">
+            <span class="device-label">IP</span>
+            <span class="device-value">${r.ipAddress}</span>
+            ${r.geoCity ? `<span class="device-geo">${r.geoCity}${r.geoRegion ? ', ' + r.geoRegion : ''} · ${r.geoCountry} · ${r.geoIsp}</span>` : ''}
+          </div>
+          <div class="device-row">
+            <span class="device-label">Device</span>
+            <span class="device-value">${r.deviceType} · ${r.os} · ${r.browser}</span>
+          </div>
+        </div>` : ''}
         ${r.status === 'pending' ? `
         <div class="request-actions">
           <button class="btn-approve" onclick="decide('${r.email}', 'approve', '${r.rowKey}')">✓ Approve</button>
