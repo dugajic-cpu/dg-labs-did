@@ -331,6 +331,13 @@
 
   // On page load — get user info from Microsoft auth
   async function init() {
+    const savedKey = sessionStorage.getItem('approveKey');
+    if (savedKey) {
+      APPROVE_KEY = savedKey;
+      document.getElementById('key-gate').style.display = 'none';
+      document.getElementById('main-panel').classList.add('visible');
+    }
+
     try {
       const authRes = await fetch('/.auth/me');
       const authData = await authRes.json();
@@ -344,6 +351,7 @@
     } catch (e) {
       // Non-critical
     }
+    if (APPROVE_KEY) loadRequests(); 
   }
 
   async function submitKey() {
@@ -352,30 +360,11 @@
       document.getElementById('gate-error').style.display = 'block';
       return;
     }
-
-    // Test the key by calling list-requests
-    // If it loads successfully, the key is valid and we proceed
     APPROVE_KEY = key;
-
-    // Hide gate, show panel
+    sessionStorage.setItem('approveKey', key);
     document.getElementById('key-gate').style.display = 'none';
     document.getElementById('main-panel').classList.add('visible');
     loadRequests();
-  }
-
-  async function loadRequests() {
-    document.getElementById('requests-container').innerHTML =
-      '<div class="loading"><div class="spinner"></div><div>Loading...</div></div>';
-    try {
-      const res = await fetch(LIST_URL);
-      const data = await res.json();
-      allRequests = data.requests || [];
-      updateStats();
-      renderRequests();
-    } catch (e) {
-      document.getElementById('requests-container').innerHTML =
-        '<div class="empty-state"><div class="empty-icon">⚠️</div><div>Failed to load requests. Check your connection.</div></div>';
-    }
   }
 
   function updateStats() {
