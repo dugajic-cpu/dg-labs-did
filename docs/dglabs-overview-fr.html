@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DG Labs Geneva — Vérification d'identité pour les fintechs suisses</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0d14; --surface: #13172a; --surface2: #181c30;
+    --border: #1e2340; --accent: #7c6af7; --accent2: #5ba3f5;
+    --text: #e8e9f0; --text-dim: #8b8fa8; --text-muted: #555c78;
+    --green: #4eca8b; --amber: #f0a854; --red: #f07070;
+    --sans: 'IBM Plex Sans', sans-serif; --mono: 'IBM Plex Mono', monospace;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); line-height: 1.6; }
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(10,13,20,0.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 60px;
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; }
+  .nav-mark { width: 32px; height: 32px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: white; }
+  .nav-name { font-size: 14px; font-weight: 600; }
+  .nav-sub { font-size: 11px; color: var(--text-dim); letter-spacing: 0.06em; text-transform: uppercase; }
+  .nav-links { display: flex; gap: 1.5rem; }
+  .nav-links a { color: var(--text-dim); text-decoration: none; font-size: 13px; transition: color 0.15s; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-lang a { color: var(--text-dim); text-decoration: none; font-size: 12px; border: 1px solid var(--border); padding: 4px 10px; border-radius: 6px; transition: all 0.15s; }
+  .nav-lang a:hover { border-color: var(--accent); color: var(--accent); }
+  .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6rem 2rem 4rem; text-align: center; background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124,106,247,0.12) 0%, transparent 70%); }
+  .hero-tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(124,106,247,0.1); border: 1px solid rgba(124,106,247,0.3); color: var(--accent); font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 16px; border-radius: 20px; margin-bottom: 2rem; }
+  .hero-tag::before { content: ''; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .hero h1 { font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 600; line-height: 1.15; margin-bottom: 1.5rem; max-width: 760px; }
+  .hero h1 span { color: var(--accent); }
+  .hero-sub { font-size: 1.1rem; color: var(--text-dim); max-width: 620px; line-height: 1.8; margin-bottom: 3rem; }
+  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+  .btn-primary { padding: 14px 28px; background: var(--accent); border: none; border-radius: 8px; color: white; font-family: var(--sans); font-size: 15px; font-weight: 500; cursor: pointer; text-decoration: none; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-primary:hover { background: #6a59e0; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(124,106,247,0.3); }
+  .btn-outline { padding: 14px 28px; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--text-dim); font-family: var(--sans); font-size: 15px; font-weight: 500; cursor: pointer; text-decoration: none; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-outline:hover { border-color: var(--accent); color: var(--text); }
+  section { padding: 5rem 2rem; max-width: 1000px; margin: 0 auto; }
+  .section-tag { font-size: 11px; font-weight: 600; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px; }
+  .section-title { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 600; margin-bottom: 1rem; }
+  .section-sub { font-size: 1rem; color: var(--text-dim); line-height: 1.8; max-width: 640px; margin-bottom: 3rem; }
+  .problem-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+  .problem-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.75rem; transition: border-color 0.2s; }
+  .problem-card:hover { border-color: rgba(124,106,247,0.4); }
+  .problem-icon { font-size: 2rem; margin-bottom: 1rem; }
+  .problem-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+  .problem-card p { font-size: 13px; color: var(--text-dim); line-height: 1.7; }
+  .solution-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 3rem; }
+  .solution-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; display: flex; gap: 1rem; align-items: flex-start; }
+  .solution-check { width: 24px; height: 24px; background: rgba(78,202,139,0.15); border: 1px solid rgba(78,202,139,0.4); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 2px; }
+  .solution-item h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .solution-item p { font-size: 12px; color: var(--text-dim); line-height: 1.6; }
+  .compliance-box { background: linear-gradient(135deg, rgba(124,106,247,0.08) 0%, rgba(91,163,245,0.06) 100%); border: 1px solid rgba(124,106,247,0.2); border-radius: 16px; padding: 2.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+  @media(max-width:640px){ .compliance-box { grid-template-columns: 1fr; } }
+  .compliance-box h3 { font-size: 16px; font-weight: 600; margin-bottom: 1rem; color: var(--accent); }
+  .compliance-list { list-style: none; }
+  .compliance-list li { font-size: 13px; color: var(--text-dim); padding: 6px 0; border-bottom: 1px solid var(--border); display: flex; gap: 10px; }
+  .compliance-list li:last-child { border-bottom: none; }
+  .compliance-list li::before { content: '→'; color: var(--accent); flex-shrink: 0; }
+  .vc-explainer { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem; margin-top: 2rem; }
+  .vc-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1.5rem; }
+  @media(max-width:600px){ .vc-compare { grid-template-columns: 1fr; } }
+  .vc-col h4 { font-size: 13px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+  .vc-item { font-size: 13px; padding: 8px 0; border-bottom: 1px solid var(--border); color: var(--text-dim); display: flex; gap: 10px; align-items: flex-start; }
+  .vc-item:last-child { border-bottom: none; }
+  .vc-item.good::before { content: '✓'; color: var(--green); flex-shrink: 0; }
+  .vc-item.bad::before { content: '✗'; color: var(--red); flex-shrink: 0; }
+  .author-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem; display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap; }
+  .author-avatar { width: 72px; height: 72px; background: var(--accent); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; color: white; flex-shrink: 0; }
+  .author-name { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+  .author-title { font-size: 13px; color: var(--accent); margin-bottom: 12px; }
+  .author-bio { font-size: 13px; color: var(--text-dim); line-height: 1.8; max-width: 560px; margin-bottom: 1.5rem; }
+  .cert-list { display: flex; flex-wrap: wrap; gap: 8px; }
+  .cert-badge { background: rgba(124,106,247,0.1); border: 1px solid rgba(124,106,247,0.25); color: var(--accent); font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 6px; font-family: var(--mono); }
+  .cta-section { text-align: center; padding: 5rem 2rem; background: radial-gradient(ellipse 60% 80% at 50% 100%, rgba(124,106,247,0.1) 0%, transparent 70%); }
+  .cta-section h2 { font-size: 2rem; font-weight: 600; margin-bottom: 1rem; }
+  .cta-section p { color: var(--text-dim); margin-bottom: 2rem; }
+  footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; font-size: 12px; color: var(--text-muted); }
+  footer a { color: var(--text-dim); text-decoration: none; }
+  footer a:hover { color: var(--accent); }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <div class="nav-mark">DG</div>
+    <div>
+      <div class="nav-name">DG Labs</div>
+      <div class="nav-sub">Genève · IA · Identité · Sécurité</div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a href="#probleme">Problème</a>
+    <a href="#solution">Solution</a>
+    <a href="#conformite">Conformité</a>
+    <a href="#auteur">À propos</a>
+    <a href="dglabs-architecture-fr.html">Architecture →</a>
+  </div>
+  <div class="nav-lang">
+    <a href="dglabs-overview-en.html">EN</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-tag">KYC · Identités vérifiables · FINMA</div>
+  <h1>Vérification d'identité pour les<br><span>fintechs suisses</span> — conforme et moderne</h1>
+  <p class="hero-sub">
+    DG Labs Genève a construit un pipeline KYC de niveau production combinant la vérification biométrique de passeport, l'identité décentralisée et l'émission de credentials cryptographiques — aligné sur les exigences FINMA et LBA/KYC.
+  </p>
+  <div class="hero-actions">
+    <a href="dglabs-architecture-fr.html" class="btn-primary">Voir l'architecture →</a>
+    <a href="https://www.dgajic.com/onboard.html" target="_blank" class="btn-outline">Démo live ↗</a>
+  </div>
+</section>
+
+<hr class="divider">
+
+<section id="probleme">
+  <div class="section-tag">Le Problème</div>
+  <h2 class="section-title">La conformité KYC est fragmentée pour les fintechs</h2>
+  <p class="section-sub">Les fintechs et sociétés crypto suisses font face à des obligations strictes de vérification d'identité imposées par la FINMA. Les solutions actuelles sont fragmentées, coûteuses et génèrent une mauvaise expérience utilisateur.</p>
+  <div class="problem-grid">
+    <div class="problem-card">
+      <div class="problem-icon">⚖️</div>
+      <h3>La FINMA exige un KYC robuste</h3>
+      <p>En vertu de la LBA et de la circulaire FINMA 2016/7, les intermédiaires financiers suisses doivent vérifier l'identité de leurs clients avant d'établir une relation d'affaires. L'onboarding 100% digital requiert un niveau d'assurance d'identité équivalent à la vérification en présentiel.</p>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">🔁</div>
+      <h3>Les utilisateurs vérifient sans cesse</h3>
+      <p>Chaque fintech gère son propre processus KYC. La même personne soumet son passeport à Revolut, à un exchange crypto, à une banque — encore et encore. Il n'existe pas de preuve portable d'identité vérifiée.</p>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">🗄️</div>
+      <h3>Les données centralisées créent des risques</h3>
+      <p>Le KYC traditionnel stocke des copies de passeports et de données personnelles dans des bases de données d'entreprise. Chaque copie est une source de risque — cible de violation, obligation RGPD, coût de stockage.</p>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">💸</div>
+      <h3>Les coûts de vérification s'accumulent</h3>
+      <p>Les coûts par vérification chez les fournisseurs KYC varient de 0,80 $ à 5 $ par contrôle. Pour un onboarding à fort volume, cela représente une dépense opérationnelle significative — notamment lorsque les utilisateurs abandonnent en cours de processus.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<section id="solution">
+  <div class="section-tag">La Solution</div>
+  <h2 class="section-title">Credentials vérifiables : vérifiez une fois, présentez partout</h2>
+  <p class="section-sub">DG Labs a construit un pipeline qui émet un Credential Vérifiable conforme W3C après vérification biométrique. Le credential réside dans le wallet Microsoft Authenticator de l'utilisateur — portable, respectueux de la vie privée et vérifiable cryptographiquement par toute partie de confiance.</p>
+
+  <div class="solution-grid">
+    <div class="solution-item">
+      <div class="solution-check">✓</div>
+      <div>
+        <h4>Une vérification, usages multiples</h4>
+        <p>Une fois émis, le credential peut être présenté à tout organisme qui l'accepte — sans répéter le processus biométrique.</p>
+      </div>
+    </div>
+    <div class="solution-item">
+      <div class="solution-check">✓</div>
+      <div>
+        <h4>Aucune donnée stockée par les vérificateurs</h4>
+        <p>Le vérificateur reçoit une preuve cryptographique, pas une copie du passeport. Rien n'est stocké. Les obligations RGPD sont minimisées.</p>
+      </div>
+    </div>
+    <div class="solution-item">
+      <div class="solution-check">✓</div>
+      <div>
+        <h4>Identité contrôlée par l'utilisateur</h4>
+        <p>Le credential vit dans le wallet de l'utilisateur. Il décide à qui le partager et quels attributs divulguer.</p>
+      </div>
+    </div>
+    <div class="solution-item">
+      <div class="solution-check">✓</div>
+      <div>
+        <h4>Inviolable cryptographiquement</h4>
+        <p>Les credentials sont signés avec la clé DID de DG Labs (did:web:www.dgajic.com). Toute tentative de falsification est immédiatement détectable.</p>
+      </div>
+    </div>
+    <div class="solution-item">
+      <div class="solution-check">✓</div>
+      <div>
+        <h4>Basé sur des standards ouverts</h4>
+        <p>Construit sur les W3C Verifiable Credentials, DID:web et Microsoft Entra Verified ID — standards ouverts bénéficiant d'un large support écosystème.</p>
+      </div>
+    </div>
+    <div class="solution-item">
+      <div class="solution-check">✓</div>
+      <div>
+        <h4>Prêt pour la production aujourd'hui</h4>
+        <p>Pipeline live, testé avec de vrais utilisateurs externes, vérification biométrique via Veriff Essential (Full Auto IA), credential dans Microsoft Authenticator.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="vc-explainer">
+    <h3 style="font-size:16px;font-weight:600;margin-bottom:8px;">KYC traditionnel vs. Credentials Vérifiables</h3>
+    <p style="font-size:13px;color:var(--text-dim);margin-bottom:0;">Pourquoi le modèle compte pour la conformité et l'expérience utilisateur.</p>
+    <div class="vc-compare">
+      <div class="vc-col">
+        <h4>KYC Traditionnel</h4>
+        <div class="vc-item bad">Copie du passeport stockée en base de données</div>
+        <div class="vc-item bad">L'utilisateur se vérifie à chaque institution</div>
+        <div class="vc-item bad">Données centralisées — risque de violation</div>
+        <div class="vc-item bad">L'entreprise gère la rétention des données</div>
+        <div class="vc-item bad">Pas de format standard — silots</div>
+      </div>
+      <div class="vc-col">
+        <h4>Credentials Vérifiables</h4>
+        <div class="vc-item good">Credential dans le wallet — aucune copie stockée</div>
+        <div class="vc-item good">Vérifier une fois, présenter à toute partie de confiance</div>
+        <div class="vc-item good">Preuve cryptographique uniquement — pas de transfert de données</div>
+        <div class="vc-item good">L'utilisateur contrôle la divulgation</div>
+        <div class="vc-item good">Standard W3C — écosystème interopérable</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<section id="conformite">
+  <div class="section-tag">Conformité</div>
+  <h2 class="section-title">Aligné sur les exigences réglementaires suisses et européennes</h2>
+  <p class="section-sub">Le pipeline DG Labs a été conçu avec la FINMA et les cadres réglementaires européens comme contraintes primaires, non comme ajouts après coup.</p>
+  <div class="compliance-box">
+    <div>
+      <h3>Alignement réglementaire suisse</h3>
+      <ul class="compliance-list">
+        <li>FINMA LBA/KYC — passeport biométrique + contrôle de vivacité satisfait l'assurance d'identité forte</li>
+        <li>LBA Art. 3 — vérification d'identité digitale équivalente au présentiel</li>
+        <li>Circulaire FINMA 2016/7 — identification vidéo via prestataire accrédité (Veriff)</li>
+        <li>nLPD — rétention minimale des données, consentement utilisateur, privacy by design</li>
+        <li>Licences crypto FINMA — obligation KYC pour les systèmes de négociation DLT et exchanges</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Alignement réglementaire européen</h3>
+      <ul class="compliance-list">
+        <li>eIDAS 2.0 — les W3C Verifiable Credentials s'alignent avec l'architecture EUDIW</li>
+        <li>RGPD — aucune donnée personnelle stockée par le vérificateur, principe de minimisation</li>
+        <li>AI Act UE — classification des risques du système de vérification biométrique considérée</li>
+        <li>MiCA — alignement sur l'obligation KYC des prestataires de services sur crypto-actifs</li>
+        <li>6e directive AML — capacité de diligence renforcée via les attributs du credential</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<section id="auteur">
+  <div class="section-tag">À propos</div>
+  <h2 class="section-title">Construit par un praticien</h2>
+  <div class="author-card">
+    <div class="author-avatar">DG</div>
+    <div>
+      <div class="author-name">Dušan Gajić</div>
+      <div class="author-title">Consultant indépendant — Gouvernance IA & Sécurité Identité · Genève</div>
+      <p class="author-bio">
+        25 ans de leadership IT international au sein du système des Nations Unies, notamment en infrastructure, cybersécurité et transformation digitale au niveau P4/Officier senior. Depuis septembre 2025, je développe DG Labs Genève comme pratique indépendante focalisée sur la gouvernance IA, l'identité et la sécurité cloud pour des clients suisses du secteur privé. DG Labs est une pratique technique — pas une société avec des employés ou des clients payants — construite délibérément pour démontrer une capacité concrète dans l'infrastructure d'identité émergente.
+      </p>
+      <div class="cert-list">
+        <span class="cert-badge">EU AI Act Foundation</span>
+        <span class="cert-badge">ISO/IEC 42001</span>
+        <span class="cert-badge">NIST AI RMF</span>
+        <span class="cert-badge">CRISC</span>
+        <span class="cert-badge">SC-300</span>
+        <span class="cert-badge">AI-102</span>
+        <span class="cert-badge">CCAIO</span>
+        <span class="cert-badge">AWS Security Specialty</span>
+        <span class="cert-badge">ISO/IEC 27001 Lead Implementer</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="cta-section">
+  <h2>Voir le pipeline en action</h2>
+  <p>Le flux d'onboarding KYC complet est live et demoable — vérification biométrique, émission de credential et présentation.</p>
+  <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+    <a href="dglabs-architecture-fr.html" class="btn-primary">Architecture technique →</a>
+    <a href="https://www.dgajic.com/onboard.html" target="_blank" class="btn-outline">Démo live ↗</a>
+  </div>
+</div>
+
+<footer>
+  <p>DG Labs Genève &nbsp;·&nbsp; <a href="mailto:dusan@dgajic.com">dusan@dgajic.com</a> &nbsp;·&nbsp; <a href="https://www.dgajic.com">www.dgajic.com</a> &nbsp;·&nbsp; <a href="https://linkedin.com/in/dusan-petar-gajic">LinkedIn</a></p>
+  <p style="margin-top:8px;">Construit sur Microsoft Azure · Entra Verified ID · Veriff · W3C Verifiable Credentials</p>
+</footer>
+
+</body>
+</html>
