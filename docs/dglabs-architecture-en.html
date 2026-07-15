@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DG Labs Geneva — Technical Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0d14; --surface: #13172a; --border: #1e2340;
+    --accent: #7c6af7; --accent2: #5ba3f5; --text: #e8e9f0;
+    --text-dim: #8b8fa8; --text-muted: #555c78;
+    --green: #4eca8b; --amber: #f0a854; --red: #f07070; --teal: #38c4be;
+    --sans: 'IBM Plex Sans', sans-serif; --mono: 'IBM Plex Mono', monospace;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); line-height: 1.6; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,13,20,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 60px; }
+  .nav-logo { display: flex; align-items: center; gap: 10px; }
+  .nav-mark { width: 32px; height: 32px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: white; }
+  .nav-name { font-size: 14px; font-weight: 600; }
+  .nav-sub { font-size: 11px; color: var(--text-dim); letter-spacing: 0.06em; text-transform: uppercase; }
+  .nav-links { display: flex; gap: 1.5rem; }
+  .nav-links a { color: var(--text-dim); text-decoration: none; font-size: 13px; transition: color 0.15s; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-lang a { color: var(--text-dim); text-decoration: none; font-size: 12px; border: 1px solid var(--border); padding: 4px 10px; border-radius: 6px; transition: all 0.15s; }
+  .nav-lang a:hover { border-color: var(--accent); color: var(--accent); }
+
+  .page-header { padding: 8rem 2rem 4rem; max-width: 900px; margin: 0 auto; background: radial-gradient(ellipse 80% 40% at 50% 0%, rgba(124,106,247,0.1) 0%, transparent 70%); }
+  .page-tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(124,106,247,0.1); border: 1px solid rgba(124,106,247,0.3); color: var(--accent); font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 16px; border-radius: 20px; margin-bottom: 1.5rem; }
+  .page-header h1 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 600; line-height: 1.2; margin-bottom: 1rem; }
+  .page-header p { font-size: 1rem; color: var(--text-dim); max-width: 580px; line-height: 1.8; margin-bottom: 2rem; }
+  .header-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .btn-primary { padding: 12px 24px; background: var(--accent); border: none; border-radius: 8px; color: white; font-family: var(--sans); font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-primary:hover { background: #6a59e0; transform: translateY(-1px); }
+  .btn-outline { padding: 12px 24px; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--text-dim); font-family: var(--sans); font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-outline:hover { border-color: var(--accent); color: var(--text); }
+  .btn-demo { padding: 12px 24px; background: rgba(78,202,139,0.15); border: 1px solid rgba(78,202,139,0.4); border-radius: 8px; color: var(--green); font-family: var(--sans); font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-demo:hover { background: rgba(78,202,139,0.25); }
+
+  section { padding: 4rem 2rem; max-width: 900px; margin: 0 auto; }
+  .section-tag { font-size: 11px; font-weight: 600; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px; }
+  .section-title { font-size: clamp(1.4rem, 2.5vw, 1.9rem); font-weight: 600; margin-bottom: 1rem; }
+  .section-sub { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; max-width: 620px; margin-bottom: 2.5rem; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+  /* PIPELINE FLOW */
+  .pipeline { display: flex; flex-direction: column; gap: 0; }
+  .pipeline-step {
+    display: grid; grid-template-columns: 48px 1fr;
+    gap: 0 1.5rem; position: relative;
+  }
+  .step-line {
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .step-num {
+    width: 40px; height: 40px; background: var(--accent);
+    border-radius: 10px; display: flex; align-items: center;
+    justify-content: center; font-size: 14px; font-weight: 700;
+    color: white; flex-shrink: 0; z-index: 1;
+  }
+  .step-connector {
+    width: 2px; background: var(--border); flex: 1; min-height: 24px;
+  }
+  .step-body { padding: 0 0 2rem 0; }
+  .step-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; padding-top: 8px; }
+  .step-desc { font-size: 13px; color: var(--text-dim); line-height: 1.7; margin-bottom: 10px; }
+  .step-tech {
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .tech-tag {
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text-dim); font-size: 11px; font-family: var(--mono);
+    padding: 3px 8px; border-radius: 4px;
+  }
+  .tech-tag.purple { border-color: rgba(124,106,247,0.4); color: var(--accent); background: rgba(124,106,247,0.08); }
+  .tech-tag.blue { border-color: rgba(91,163,245,0.4); color: var(--accent2); background: rgba(91,163,245,0.08); }
+  .tech-tag.green { border-color: rgba(78,202,139,0.4); color: var(--green); background: rgba(78,202,139,0.08); }
+  .tech-tag.amber { border-color: rgba(240,168,84,0.4); color: var(--amber); background: rgba(240,168,84,0.08); }
+  .tech-tag.teal { border-color: rgba(56,196,190,0.4); color: var(--teal); background: rgba(56,196,190,0.08); }
+
+  /* STACK */
+  .stack-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+  .stack-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+  .stack-card-title { font-size: 13px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+  .stack-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .stack-item:last-child { border-bottom: none; }
+  .stack-item-name { color: var(--text); font-weight: 500; min-width: 140px; }
+  .stack-item-desc { color: var(--text-dim); font-size: 12px; }
+
+  /* DECISIONS */
+  .decisions { display: flex; flex-direction: column; gap: 1rem; }
+  .decision-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.75rem; }
+  .decision-card:hover { border-color: rgba(124,106,247,0.3); }
+  .decision-q { font-size: 13px; color: var(--accent); font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .decision-title { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+  .decision-body { font-size: 13px; color: var(--text-dim); line-height: 1.8; }
+  .decision-body strong { color: var(--text); }
+
+  /* FUNCTIONS TABLE */
+  .func-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .func-table th { text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border); }
+  .func-table td { padding: 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .func-table tr:last-child td { border-bottom: none; }
+  .func-table tr:hover td { background: rgba(124,106,247,0.03); }
+  .func-name { font-family: var(--mono); font-size: 12px; color: var(--accent); font-weight: 500; }
+  .func-auth { font-size: 11px; padding: 2px 7px; border-radius: 4px; white-space: nowrap; }
+  .func-auth.anon { background: rgba(78,202,139,0.1); color: var(--green); border: 1px solid rgba(78,202,139,0.3); }
+  .func-auth.key { background: rgba(240,168,84,0.1); color: var(--amber); border: 1px solid rgba(240,168,84,0.3); }
+  .func-desc { color: var(--text-dim); }
+
+  /* STATUS */
+  .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+  .status-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; }
+  .status-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .status-value { font-size: 15px; font-weight: 600; color: var(--green); display: flex; align-items: center; gap: 6px; }
+  .status-value::before { content: ''; width: 8px; height: 8px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .cta-section { text-align: center; padding: 4rem 2rem; background: radial-gradient(ellipse 60% 80% at 50% 100%, rgba(124,106,247,0.1) 0%, transparent 70%); }
+  .cta-section h2 { font-size: 1.8rem; font-weight: 600; margin-bottom: 1rem; }
+  .cta-section p { color: var(--text-dim); margin-bottom: 2rem; }
+  footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; font-size: 12px; color: var(--text-muted); }
+  footer a { color: var(--text-dim); text-decoration: none; }
+  footer a:hover { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <div class="nav-mark">DG</div>
+    <div>
+      <div class="nav-name">DG Labs</div>
+      <div class="nav-sub">Geneva · AI · Identity · Security</div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a href="#pipeline">Pipeline</a>
+    <a href="#functions">Functions</a>
+    <a href="#stack">Stack</a>
+    <a href="#decisions">Decisions</a>
+    <a href="dglabs-overview-en.html">← Overview</a>
+  </div>
+  <div class="nav-lang">
+    <a href="dglabs-architecture-fr.html">FR</a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="page-tag">Technical Architecture</div>
+  <h1>KYC Identity Onboarding Pipeline</h1>
+  <p>A production-grade serverless pipeline combining email OTP verification, biometric passport verification, Microsoft Entra Verified ID credential issuance, and cryptographic presentation. Built on Azure, deployed and tested with real external users.</p>
+  <div class="header-actions">
+    <a href="https://www.dgajic.com/onboard.html" target="_blank" class="btn-demo">▶ Live Demo</a>
+    <a href="https://github.com/dugajic-cpu/dg-labs-did" target="_blank" class="btn-outline">GitHub Repository ↗</a>
+    <a href="dglabs-overview-en.html" class="btn-outline">← Business Overview</a>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- PIPELINE -->
+<section id="pipeline">
+  <div class="section-tag">Pipeline Flow</div>
+  <h2 class="section-title">Nine steps from email to verified credential</h2>
+  <p class="section-sub">Each step is a discrete serverless function. The pipeline is event-driven — no components are running or costing money between invocations.</p>
+
+  <div class="pipeline">
+
+    <div class="pipeline-step">
+      <div class="step-line"><div class="step-num">1</div><div class="step-connector"></div></div>
+      <div class="step-body">
+        <div class="step-title">Email verification — OTP</div>
+        <div class="step-desc">Applicant visits onboard.html, enters email and completes reCAPTCHA v2. send-otp validates the reCAPTCHA server-side with Google's API, enforces a rate limit of 3 requests per 10 minutes per email, generates a 6-digit OTP, stores it in Azure Table Storage with a 10-minute expiry, and sends it via Microsoft Graph API. verify-otp checks the code and deletes it on success — preventing replay attacks.</div>
+        <div class="step-tech">
+          <span class="tech-tag purple">send-otp</span>
+          <span class="tech-tag purple">verify-otp</span>
+          <span class="tech-tag blue">Azure Table Storage</span>
+          <span class="tech-tag blue">Microsoft Graph API</span>
+          <span class="tech-tag green">Google reCAPTCHA v2</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="step-line"><div class="step-num">2</div><div class="step-connector"></div></div>
+      <div class="step-body">
+        <div class="step-title">Request submission & enrichment</div>
+        <div class="step-desc">After OTP verification, applicant submits their name and passport country. submit-request extracts IP address from x-forwarded-for headers, parses browser/OS/device type from the user-agent string, calls ipwho.is for geo enrichment (city, region, ISP, timezone), and stores all fields in Table Storage. Sends admin notification email with full context via Microsoft Graph.</div>
+        <div class="step-tech">
+          <span class="tech-tag purple">submit-request</span>
+          <span class="tech-tag blue">Azure Table Storage</span>
+          <span class="tech-tag blue">Microsoft Graph API</span>
+          <span class="tech-tag green">ipwho.is (geo API)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="step-line"><div class="step-num">3</div><div class="step-connector"></div></div>
+      <div class="step-body">
+        <div class="step-title">Admin review & approval</div>
+        <div class="step-desc">Administrator logs into admin.html protected by Microsoft Entra MFA. After Microsoft login, a function key gate provides a second authentication layer. The admin panel displays all requests with IP, geo, and device data. On approval, approve-request creates a Veriff verification session with the applicant's email in vendorData, emails the Veriff link to the applicant, and updates Table Storage status to veriff_sent.</div>
+        <div class="step-tech">
+          <span class="tech-tag purple">approve-request</span>
+          <span class="tech-tag purple">list-requests</span>
+          <span class="tech-tag blue">Azure Static Web Apps (auth)</span>
+          <span class="tech-tag blue">Microsoft Entra ID MFA</span>
+          <span class="tech-tag green">Veriff API</span>
+          <span class="tech-tag blue">Azure Table Storage</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="step-line"><div class="step-num">4</div><div class="step-connector"></div></div>
+      <div class="step-body">
+        <div class="step-title">Biometric verification — Veriff</div>
+        <div class="step-desc">Applicant receives the Veriff link by email (valid 7 days) and completes passport + selfie verification on their phone. Veriff's Full Auto AI engine evaluates the submission — typically within seconds. No human review required. The email is stored in vendorData to link the Veriff session back to the DG Labs request record.</div>
+        <div class="step-tech">
+          <span class="tech-tag green">Veriff Essential — Full Auto AI</span>
+          <span class="tech-tag amber">Biometric passport + liveness</span>
+          <span class="tech-tag amber">FINMA-aligned assurance level</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="step-line"><div class="step-num">5</div><div class="step-connector"></div></div>
+      <div class="step-body">
+        <div class="step-title">Veriff webhook — vc-onboard</div>
+        <div class="step-desc">On approval, Veriff fires a fullauto webhook POST to vc-onboard. The function parses the payload (handling both test and live fullauto formats), extracts the applicant's email from vendorData, and builds a personalised claim.html URL containing email, firstName, and lastName as URL parameters. Sends the "Credential is ready" email with a permanent claim link via Microsoft Graph.</div>
+        <div class="step-tech">
+          <span class="tech-tag purple">vc-onboard</span>
+          <span class="tech-tag amber">Veriff fullauto webhook</span>
+          <span class="tech-tag blue">Microsoft Graph API</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="step-line"><div class="step-num">6</div><div class="step-connector"></div></div>
+      <div class="step-body">
+        <div class="step-title">Credential issuance — proxy + Entra Verified ID</div>
+        <div class="step-desc">Applicant clicks the claim link, which opens claim.html and immediately calls vc-issue-proxy. The proxy validates input, checks Table Storage — if status is credential_issued and more than 15 minutes have elapsed, it returns 403 (blocked). Otherwise it calls vc-issue internally with the function key stored in Azure environment variables (never exposed to the browser). vc-issue authenticates with Microsoft's Verified ID API using client credentials flow (scope: 3db474b9-.../.default), builds the issuance request with authority, manifest, type, and claims, and returns a QR code (base64 PNG) and openid-vc:// deep link. On success, vc-issue-proxy updates Table Storage status to credential_issued.</div>
+        <div class="step-tech">
+          <span class="tech-tag purple">vc-issue-proxy (Anonymous)</span>
+          <span class="tech-tag purple">vc-issue (Function key)</span>
+          <span class="tech-tag blue">Microsoft Entra Verified ID</span>
+          <span class="tech-tag blue">did:web:www.dgajic.com</span>
+          <span class="tech-tag amber">AI_Governance_Expert credential</span>
+          <span class="tech-tag blue">Azure Table Storage</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="step-line"><div class="step-num">7</div><div class="step-connector"></div></div>
+      <div class="step-body">
+        <div class="step-title">Credential acceptance — Microsoft Authenticator</div>
+        <div class="step-desc">claim.html displays the QR code with a 5-minute countdown timer. User scans with Microsoft Authenticator (or taps the deep link on iPhone native mail). Authenticator fetches the credential definition from the manifest URL, presents the AI Governance & Cybersecurity Specialist card to the user, and on acceptance stores it cryptographically signed in the wallet. If the QR expires, "Generate new QR code" calls vc-issue-proxy again — allowed within the 15-minute window.</div>
+        <div class="step-tech">
+          <span class="tech-tag green">Microsoft Authenticator</span>
+          <span class="tech-tag blue">W3C Verifiable Credential</span>
+          <span class="tech-tag amber">openid-vc:// protocol</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="step-line"><div class="step-num">8</div><div class="step-connector"></div></div>
+      <div class="step-body">
+        <div class="step-title">Credential presentation — vc-present</div>
+        <div class="step-desc">Any relying party can verify the credential at index.html. vc-present calls Microsoft's createPresentationRequest API, generates a verification QR code. User scans with Authenticator and taps Share. The relying party receives a cryptographic proof — name, email, issuer DID — without storing any copy of the original data. The credential's digital signature is verified against did:web:www.dgajic.com.</div>
+        <div class="step-tech">
+          <span class="tech-tag purple">vc-present</span>
+          <span class="tech-tag blue">Microsoft Entra Verified ID</span>
+          <span class="tech-tag blue">did:web:www.dgajic.com</span>
+          <span class="tech-tag green">Zero-knowledge proof of identity</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- FUNCTIONS -->
+<section id="functions">
+  <div class="section-tag">Azure Functions</div>
+  <h2 class="section-title">Function inventory</h2>
+  <p class="section-sub">All functions run on Azure Functions Consumption plan (West Europe). Node.js 20. Event-triggered — dormant and free between invocations.</p>
+
+  <table class="func-table">
+    <thead>
+      <tr>
+        <th>Function</th>
+        <th>Auth</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="func-name">send-otp</span></td><td><span class="func-auth anon">Anonymous</span></td><td class="func-desc">reCAPTCHA validation · rate limiting · OTP generation · Table Storage · Graph email</td></tr>
+      <tr><td><span class="func-name">verify-otp</span></td><td><span class="func-auth anon">Anonymous</span></td><td class="func-desc">OTP check against Table Storage · delete on success · replay prevention</td></tr>
+      <tr><td><span class="func-name">submit-request</span></td><td><span class="func-auth anon">Anonymous</span></td><td class="func-desc">IP/geo/device capture · Table Storage write · admin notification email</td></tr>
+      <tr><td><span class="func-name">list-requests</span></td><td><span class="func-auth anon">Anonymous</span></td><td class="func-desc">Read all request-partition rows · return enriched fields · sort by date</td></tr>
+      <tr><td><span class="func-name">approve-request</span></td><td><span class="func-auth key">Function key</span></td><td class="func-desc">Veriff session creation · approval/rejection email · Table Storage status update</td></tr>
+      <tr><td><span class="func-name">vc-issue</span></td><td><span class="func-auth key">Function key</span></td><td class="func-desc">Microsoft Entra Verified ID issuance request · QR code + deep link response</td></tr>
+      <tr><td><span class="func-name">vc-issue-proxy</span></td><td><span class="func-auth anon">Anonymous</span></td><td class="func-desc">Public proxy · input validation · 15-min single-use gate · calls vc-issue internally</td></tr>
+      <tr><td><span class="func-name">vc-onboard</span></td><td><span class="func-auth key">Function key (URL)</span></td><td class="func-desc">Veriff webhook receiver · dual payload parsing · claim link email</td></tr>
+      <tr><td><span class="func-name">vc-present</span></td><td><span class="func-auth anon">Anonymous</span></td><td class="func-desc">Credential verification presentation request · cryptographic proof validation</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<hr class="divider">
+
+<!-- STACK -->
+<section id="stack">
+  <div class="section-tag">Technology Stack</div>
+  <h2 class="section-title">What it's built on</h2>
+  <p class="section-sub">All components are production-grade, commercially supported, and FINMA-relevant.</p>
+
+  <div class="stack-grid">
+    <div class="stack-card">
+      <div class="stack-card-title">Azure Infrastructure</div>
+      <div class="stack-item"><span class="stack-item-name">Function App</span><span class="stack-item-desc">9 functions, Node.js 20, West Europe, Consumption plan</span></div>
+      <div class="stack-item"><span class="stack-item-name">Static Web App</span><span class="stack-item-desc">www.dgajic.com, GitHub Actions CI/CD, Microsoft auth</span></div>
+      <div class="stack-item"><span class="stack-item-name">Table Storage</span><span class="stack-item-desc">onboardingrequests table, two partition keys (otp, request)</span></div>
+      <div class="stack-item"><span class="stack-item-name">Key Vault</span><span class="stack-item-desc">Secret management, referenced by Function App env vars</span></div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-card-title">Identity & Credentials</div>
+      <div class="stack-item"><span class="stack-item-name">Entra Verified ID</span><span class="stack-item-desc">W3C credential issuance & presentation, AI_Governance_Expert type</span></div>
+      <div class="stack-item"><span class="stack-item-name">DID:web</span><span class="stack-item-desc">did:web:www.dgajic.com — self-hosted decentralized identifier</span></div>
+      <div class="stack-item"><span class="stack-item-name">Entra ID P2</span><span class="stack-item-desc">Admin panel MFA, role-based access control</span></div>
+      <div class="stack-item"><span class="stack-item-name">MS Authenticator</span><span class="stack-item-desc">User-side wallet for credential storage and presentation</span></div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-card-title">Biometric Verification</div>
+      <div class="stack-item"><span class="stack-item-name">Veriff</span><span class="stack-item-desc">Essential plan, Full Auto AI, passport + liveness, fullauto webhook</span></div>
+      <div class="stack-item"><span class="stack-item-name">reCAPTCHA v2</span><span class="stack-item-desc">Server-side validation, bot prevention on public form</span></div>
+      <div class="stack-item"><span class="stack-item-name">ipwho.is</span><span class="stack-item-desc">IP geolocation (city, ISP, timezone), HTTPS, works from Azure</span></div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-card-title">Communication & Dev</div>
+      <div class="stack-item"><span class="stack-item-name">Microsoft Graph</span><span class="stack-item-desc">Email sending (OTP, admin notifications, approval, claim links)</span></div>
+      <div class="stack-item"><span class="stack-item-name">GitHub</span><span class="stack-item-desc">dugajic-cpu/dg-labs-did, Actions CI/CD to Azure Static Web Apps</span></div>
+      <div class="stack-item"><span class="stack-item-name">Dynu DNS</span><span class="stack-item-desc">dgajic.com domain, custom DNS records for DID:web</span></div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- DECISIONS -->
+<section id="decisions">
+  <div class="section-tag">Key Design Decisions</div>
+  <h2 class="section-title">Three decisions worth discussing</h2>
+  <p class="section-sub">These are the architectural choices that had the most impact on security, user experience, and reliability.</p>
+
+  <div class="decisions">
+    <div class="decision-card">
+      <div class="decision-q">Security Pattern</div>
+      <div class="decision-title">Proxy function to hide the issuance key from the browser</div>
+      <div class="decision-body">
+        <strong>The problem:</strong> vc-issue requires a function key to prevent unauthorized credential generation. But claim.html runs in the browser — any key placed in JavaScript source is publicly visible in Developer Tools.<br><br>
+        <strong>The solution:</strong> vc-issue-proxy is an Anonymous function that sits between the browser and vc-issue. The browser calls the proxy with no key. The proxy validates input, applies the single-use gate, and calls vc-issue internally using the key stored in Azure environment variables — which are never transmitted over any public network. CORS is restricted to https://www.dgajic.com to prevent the proxy itself from being called from unauthorized origins.<br><br>
+        <strong>The pattern:</strong> Public-facing anonymous proxy → validated call to protected internal resource. Standard API gateway pattern applied at the function level.
+      </div>
+    </div>
+
+    <div class="decision-card">
+      <div class="decision-q">UX vs. Security</div>
+      <div class="decision-title">On-demand QR generation instead of emailing a static QR code</div>
+      <div class="decision-body">
+        <strong>The problem:</strong> Microsoft Entra Verified ID QR codes expire in 5 minutes. Early versions of the pipeline emailed the QR code as an image — by the time the user opened the email, the code had expired.<br><br>
+        <strong>The solution:</strong> The credential email contains only a permanent HTTPS link to claim.html. When the user clicks it, the page calls vc-issue-proxy at that moment, generating a fresh QR code. A 5-minute countdown timer is displayed. If it expires, "Generate new QR code" generates another immediately — allowed within a 15-minute window after first issuance, then blocked to prevent duplicate credential generation.<br><br>
+        <strong>The benefit:</strong> Works in all email clients (Gmail, Outlook, iOS Mail) because HTTPS links are never blocked. The deep link button in the browser (not in the email) works correctly in Safari and Chrome on iPhone.
+      </div>
+    </div>
+
+    <div class="decision-card">
+      <div class="decision-q">Reliability</div>
+      <div class="decision-title">Dual webhook parsing for Veriff test vs. live payload formats</div>
+      <div class="decision-body">
+        <strong>The problem:</strong> Veriff's test-mode webhook and live fullauto webhook have different JSON structures. The test format nests data differently from the production fullauto format — a fact not prominently documented.<br><br>
+        <strong>The solution:</strong> vc-onboard checks <code>body?.eventType === 'fullauto'</code> first to identify which format arrived, then uses the matching extraction path for each field. A single boolean flag (isFullAuto) is set once at the top of the function and reused across all field extractions — clean, readable, and easy to extend if Veriff adds more formats.<br><br>
+        <strong>The lesson:</strong> Don't trust API documentation alone — test in production conditions. The bug was only discovered when the first live Veriff verification arrived and the webhook silently produced undefined for all fields.
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- STATUS -->
+<section>
+  <div class="section-tag">Production Status</div>
+  <h2 class="section-title">Live and tested</h2>
+  <p class="section-sub">The pipeline has been tested end-to-end with real external users. All components are active.</p>
+  <div class="status-grid">
+    <div class="status-card"><div class="status-label">Pipeline status</div><div class="status-value">Production live</div></div>
+    <div class="status-card"><div class="status-label">Biometric verification</div><div class="status-value">Veriff active</div></div>
+    <div class="status-card"><div class="status-label">Credential issuance</div><div class="status-value">Entra Verified ID</div></div>
+    <div class="status-card"><div class="status-label">External users tested</div><div class="status-value">Confirmed ✓</div></div>
+    <div class="status-card"><div class="status-label">CI/CD</div><div class="status-value">GitHub Actions</div></div>
+    <div class="status-card"><div class="status-label">Repository</div><div class="status-value">dugajic-cpu/dg-labs-did</div></div>
+  </div>
+</section>
+
+<div class="cta-section">
+  <h2>Try it live</h2>
+  <p>The full pipeline is running. Submit a request, receive a biometric verification, claim a verifiable credential.</p>
+  <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+    <a href="https://www.dgajic.com/onboard.html" target="_blank" class="btn-demo">▶ Start Live Demo</a>
+    <a href="https://github.com/dugajic-cpu/dg-labs-did" target="_blank" class="btn-outline">GitHub Repository ↗</a>
+    <a href="dglabs-overview-en.html" class="btn-outline">← Business Overview</a>
+  </div>
+</div>
+
+<footer>
+  <p>DG Labs Geneva &nbsp;·&nbsp; <a href="mailto:dusan@dgajic.com">dusan@dgajic.com</a> &nbsp;·&nbsp; <a href="https://www.dgajic.com">www.dgajic.com</a> &nbsp;·&nbsp; <a href="https://linkedin.com/in/dusan-petar-gajic">LinkedIn</a></p>
+  <p style="margin-top:8px;">Microsoft Azure · Entra Verified ID · Veriff · W3C Verifiable Credentials · DID:web · Node.js 20</p>
+</footer>
+
+</body>
+</html>
