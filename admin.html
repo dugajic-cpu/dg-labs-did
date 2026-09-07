@@ -188,7 +188,7 @@
     document.getElementById('requests-container').innerHTML =
       '<div class="loading"><div class="spinner"></div><div>Loading...</div></div>';
     try {
-      const res = await fetch(LIST_URL);
+      const res = await fetch(LIST_URL + '?code=' + APPROVE_KEY);
       const data = await res.json();
       allRequests = data.requests || [];
       updateStats();
