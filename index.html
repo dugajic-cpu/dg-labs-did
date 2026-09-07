@@ -40,8 +40,8 @@
 </div>
 
 <script>
-const VC_PRESENT_URL = "https://dg-labs-vc-callback-fzdwg5fjb4cncgca.westeurope-01.azurewebsites.net/api/vc-present?code=g_bpgg2RZ7SFsmPvaY1PD2xxSzCtCvp5Kp9BAbjrgmO7AzFugCOXkA==";
-const VC_STATUS_URL = "https://dg-labs-vc-callback-fzdwg5fjb4cncgca.westeurope-01.azurewebsites.net/api/vc-callback?code=naFv-wKi6TPkk4XVALc83ogwK6afi42z7uXMRxLtu0k6AzFuFavJ6w==";
+const VC_PRESENT_URL = "https://dg-labs-vc-callback-fzdwg5fjb4cncgca.westeurope-01.azurewebsites.net/api/vc-present-proxy";
+const VC_STATUS_URL = "https://dg-labs-vc-callback-fzdwg5fjb4cncgca.westeurope-01.azurewebsites.net/api/vc-status-proxy";
 
 let pollInterval;
 
@@ -69,7 +69,7 @@ async function startVerification() {
 
 async function checkStatus(requestId) {
   try {
-    const response = await fetch(VC_STATUS_URL + "&requestId=" + requestId);
+    const response = await fetch(VC_STATUS_URL + "?requestId=" + requestId);
     const data = await response.json();
 
     if (data.status === "verified") {
