@@ -287,9 +287,16 @@
         body: JSON.stringify({ email, firstName, lastName })
       });
 
-      // Credential already issued and 15-minute window has passed
+      // 403 = credential already issued (15-minute window passed) or not eligible
       if (res.status === 403) {
-        showStep('step-blocked');
+        const blocked = await res.json().catch(() => ({}));
+        if (blocked.error === 'Credential already issued') {
+          showStep('step-blocked');
+        } else {
+          document.getElementById('error-message').textContent =
+            blocked.message || 'Unable to generate credential. Please try again.';
+          showStep('step-error');
+        }
         return;
       }
 
