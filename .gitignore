@@ -1,0 +1,17 @@
+# This repo is public — secrets must never be committed here.
+
+# Environment files
+.env
+.env.*
+
+# Private key material: DID Toolbox output, PEM keys, keystores
+.didtoolbox/
+id_ed25519
+id_ed25519.pub
+assert-key-*
+auth-key-*
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
