@@ -269,6 +269,8 @@
   // Read email from URL parameter
   const params = new URLSearchParams(window.location.search);
   const email = params.get('email') || '';
+  let submissionToken = '';
+  try { submissionToken = sessionStorage.getItem('submissionToken') || ''; } catch (e) {}
 
   document.getElementById('email-display').textContent = email || 'Not provided';
   document.getElementById('confirm-email').textContent = email;
@@ -293,6 +295,7 @@
     if (!lastName) { showMsg('form-msg', 'Please enter your last name.', 'error'); return; }
     if (!country) { showMsg('form-msg', 'Please select your passport country.', 'error'); return; }
     if (!email) { showMsg('form-msg', 'Email not found. Please go back and verify your email.', 'error'); return; }
+    if (!submissionToken) { showMsg('form-msg', 'Your email verification has expired or is missing. Please verify your email again.', 'error'); return; }
 
     const btn = event.target;
     btn.disabled = true;
@@ -302,12 +305,13 @@
       const res = await fetch(SUBMIT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, firstName, lastName, country })
+        body: JSON.stringify({ email, firstName, lastName, country, submissionToken })
       });
 
       const data = await res.json();
 
       if (data.success) {
+        try { sessionStorage.removeItem('submissionToken'); } catch (e) {}
         showStep('step-success');
       } else {
         showMsg('form-msg', data.message || 'Something went wrong. Please try again.', 'error');

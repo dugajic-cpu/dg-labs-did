@@ -366,6 +366,8 @@
       const data = await res.json();
 
       if (data.success) {
+        // Proof of verification for submit-request; kept out of the URL
+        try { sessionStorage.setItem('submissionToken', data.submissionToken || ''); } catch (e) {}
         showStep('step-success');
       } else {
         showMsg('otp-msg', data.message || 'Incorrect code. Please try again.', 'error');
