@@ -224,46 +224,67 @@
       container.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div>No requests found.</div></div>';
       return;
     }
-    container.innerHTML = filtered.map(r => {
-      const deviceBlock = r.ipAddress ? (
-        '<div class="request-device">' +
-          '<div class="device-row">' +
-            '<span class="device-label">IP</span>' +
-            '<span class="device-value">' + r.ipAddress + '</span>' +
-            (r.geoCity ? '<span class="device-geo">' + r.geoCity + (r.geoRegion ? ', ' + r.geoRegion : '') + ' · ' + r.geoCountry + ' · ' + r.geoIsp + '</span>' : '') +
-          '</div>' +
-          '<div class="device-row">' +
-            '<span class="device-label">Device</span>' +
-            '<span class="device-value">' + (r.deviceType||'') + ' · ' + (r.os||'') + ' · ' + (r.browser||'') + '</span>' +
-          '</div>' +
-        '</div>'
-      ) : '';
- 
-      const actionBlock = r.status === 'pending' ? (
-        '<div class="request-actions">' +
-          '<button class="btn-approve" onclick="decide(\'' + r.email + '\', \'approve\', \'' + r.rowKey + '\')">✓ Approve</button>' +
-          '<button class="btn-reject" onclick="decide(\'' + r.email + '\', \'reject\', \'' + r.rowKey + '\')">✗ Reject</button>' +
-        '</div>'
-      ) : '';
- 
-      return '<div class="request-card" id="card-' + r.rowKey + '">' +
-        '<div class="request-header">' +
-          '<div>' +
-            '<div class="request-name">' + r.firstName + ' ' + r.lastName + '</div>' +
-            '<div class="request-email">' + r.email + '</div>' +
-          '</div>' +
-          '<span class="status-badge status-' + r.status + '">' + formatStatus(r.status) + '</span>' +
-        '</div>' +
-        '<div class="request-meta">' +
-          '<div class="meta-item">Country <strong>' + r.country + '</strong></div>' +
-          '<div class="meta-item">Submitted <strong>' + formatDate(r.createdAt) + '</strong></div>' +
-        '</div>' +
-        deviceBlock +
-        actionBlock +
-      '</div>';
-    }).join('');
+    // Built with DOM methods and textContent: every value here comes from an applicant or
+    // from storage, so none of it may be parsed as HTML.
+    container.replaceChildren(...filtered.map(renderCard));
   }
- 
+
+  function el(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  function renderCard(r) {
+    const card = el('div', 'request-card');
+    card.dataset.rowKey = r.rowKey || '';
+
+    const header = el('div', 'request-header');
+    const who = el('div');
+    who.append(el('div', 'request-name', (r.firstName || '') + ' ' + (r.lastName || '')));
+    who.append(el('div', 'request-email', r.email || ''));
+    const badge = el('span', 'status-badge', formatStatus(r.status));
+    if (/^[a-z_]+$/.test(r.status || '')) badge.classList.add('status-' + r.status);
+    header.append(who, badge);
+    card.append(header);
+
+    const meta = el('div', 'request-meta');
+    const country = el('div', 'meta-item', 'Country ');
+    country.append(el('strong', null, r.country || ''));
+    const submitted = el('div', 'meta-item', 'Submitted ');
+    submitted.append(el('strong', null, formatDate(r.createdAt)));
+    meta.append(country, submitted);
+    card.append(meta);
+
+    if (r.ipAddress) {
+      const device = el('div', 'request-device');
+      const ipRow = el('div', 'device-row');
+      ipRow.append(el('span', 'device-label', 'IP'), el('span', 'device-value', r.ipAddress));
+      if (r.geoCity) {
+        ipRow.append(el('span', 'device-geo',
+          r.geoCity + (r.geoRegion ? ', ' + r.geoRegion : '') + ' · ' + (r.geoCountry || '') + ' · ' + (r.geoIsp || '')));
+      }
+      const devRow = el('div', 'device-row');
+      devRow.append(el('span', 'device-label', 'Device'),
+        el('span', 'device-value', (r.deviceType || '') + ' · ' + (r.os || '') + ' · ' + (r.browser || '')));
+      device.append(ipRow, devRow);
+      card.append(device);
+    }
+
+    if (r.status === 'pending') {
+      const actions = el('div', 'request-actions');
+      const approve = el('button', 'btn-approve', '✓ Approve');
+      const reject = el('button', 'btn-reject', '✗ Reject');
+      approve.addEventListener('click', () => decide(r.email, 'approve', card));
+      reject.addEventListener('click', () => decide(r.email, 'reject', card));
+      actions.append(approve, reject);
+      card.append(actions);
+    }
+
+    return card;
+  }
+
   function formatStatus(status) {
     const map = { pending: 'Pending', veriff_sent: 'Veriff Sent', credential_issued: 'Issued', rejected: 'Rejected' };
     return map[status] || status;
@@ -274,8 +295,7 @@
     return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   }
  
-  async function decide(email, decision, rowKey) {
-    const card = document.getElementById('card-' + rowKey);
+  async function decide(email, decision, card) {
     const btns = card.querySelectorAll('button');
     btns.forEach(b => b.disabled = true);
     try {

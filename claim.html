@@ -261,8 +261,7 @@
 
   const params = new URLSearchParams(window.location.search);
   const email = params.get('email');
-  const firstName = params.get('firstName');
-  const lastName = params.get('lastName');
+  const token = params.get('token');
 
   let countdownInterval = null;
 
@@ -272,7 +271,7 @@
   }
 
   async function generateQr() {
-    if (!email || !firstName || !lastName) {
+    if (!email || !token) {
       showStep('step-invalid');
       return;
     }
@@ -284,7 +283,7 @@
       const res = await fetch(VC_ISSUE_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, firstName, lastName })
+        body: JSON.stringify({ email, token })
       });
 
       // 403 = credential already issued (15-minute window passed) or not eligible
