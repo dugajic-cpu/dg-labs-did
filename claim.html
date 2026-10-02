@@ -198,7 +198,7 @@
   <!-- Step 2: QR code ready -->
   <div class="step" id="step-qr">
     <h1>Your credential is ready</h1>
-    <p class="subtitle">Scan the QR code below with <strong>Microsoft Authenticator</strong> to add your DG Labs Verified ID.</p>
+    <p class="subtitle">Scan the QR code below with <strong id="qr-wallet">Microsoft Authenticator</strong> to add your DG Labs Verified ID.</p>
 
     <div class="qr-container">
       <img id="qr-image" src="" alt="Scan with Microsoft Authenticator">
@@ -208,13 +208,18 @@
       QR code expires in <span id="timer">5:00</span>
     </div>
 
-    <div class="instructions">
+    <div class="instructions" id="how-entra">
       <strong>How to scan:</strong><br>
       Open Microsoft Authenticator → tap <strong>+</strong> → tap <strong>Other</strong> or <strong>Verified ID</strong> → scan this code
     </div>
 
+    <div class="instructions" id="how-swiyu" style="display:none;">
+      <strong>How to scan:</strong><br>
+      Open your <strong>swiyu wallet</strong> → tap the scan button → scan this code
+    </div>
+
     <a id="deep-link-btn" href="#" class="btn">
-      Or tap here to open Authenticator directly
+      Or tap here to open <span id="btn-wallet">Authenticator</span> directly
     </a>
 
     <button class="btn btn-secondary" onclick="generateQr()" style="margin-top:10px;">
@@ -242,7 +247,7 @@
   <div class="step" id="step-blocked">
     <div style="font-size:48px;margin-bottom:1rem;">✓</div>
     <h1>Credential already issued</h1>
-    <p class="subtitle">Your DG Labs Verified ID has already been issued to your Microsoft Authenticator. If you need assistance, contact <a href="mailto:dusan@dgajic.com" style="color:var(--accent);">dusan@dgajic.com</a></p>
+    <p class="subtitle">Your DG Labs Verified ID has already been issued to your <span id="blocked-wallet">Microsoft Authenticator</span>. If you need assistance, contact <a href="mailto:dusan@dgajic.com" style="color:var(--accent);">dusan@dgajic.com</a></p>
   </div>
   
   <!-- Step 5: Missing params -->
@@ -264,6 +269,31 @@
   const token = params.get('token');
 
   let countdownInterval = null;
+
+  // The wallet depends on which issuer actually produced the offer, not on the page. The
+  // server says so; with no answer we keep today's Entra wording, which is the live path.
+  function applyWallet(mode) {
+    const isSwiyu = mode === 'swiyu';
+    // Two forms: one that follows a preposition ("scan with ...") and one that follows
+    // "your", so neither reads as "with swiyu wallet" or "your the swiyu wallet".
+    const walletWithArticle = isSwiyu ? 'the swiyu wallet' : 'Microsoft Authenticator';
+    const walletBare = isSwiyu ? 'swiyu wallet' : 'Microsoft Authenticator';
+    const setText = (id, text) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    };
+    setText('qr-wallet', walletWithArticle);
+    setText('blocked-wallet', walletBare);
+    setText('btn-wallet', isSwiyu ? 'the swiyu wallet' : 'Authenticator');
+    const img = document.getElementById('qr-image');
+    if (img) img.alt = 'Scan with ' + walletWithArticle;
+    const entraHow = document.getElementById('how-entra');
+    const swiyuHow = document.getElementById('how-swiyu');
+    if (entraHow && swiyuHow) {
+      entraHow.style.display = isSwiyu ? 'none' : '';
+      swiyuHow.style.display = isSwiyu ? '' : 'none';
+    }
+  }
 
   function showStep(id) {
     document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
@@ -290,6 +320,7 @@
       if (res.status === 403) {
         const blocked = await res.json().catch(() => ({}));
         if (blocked.error === 'Credential already issued') {
+          applyWallet(blocked.mode);
           showStep('step-blocked');
         } else {
           document.getElementById('error-message').textContent =
@@ -309,6 +340,7 @@
       }
 
       if (data.qrCode && data.url) {
+        applyWallet(data.mode);
         document.getElementById('qr-image').src = data.qrCode;
         document.getElementById('deep-link-btn').href = data.url;
         showStep('step-qr');
